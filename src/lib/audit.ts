@@ -1,4 +1,4 @@
-import type { PrismaClient, EntityType, AuditAction, AuditSource } from "@/generated/prisma";
+import type { PrismaClient, EntityType, AuditAction, AuditSource } from "@/generated/prisma/client";
 
 interface AuditEntry {
   userId: string;

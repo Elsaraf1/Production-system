@@ -107,9 +107,9 @@ export default async function DashboardPage() {
 }
 
 function toMap(rows: Array<Record<string, unknown>>, field: string) {
-  const map: Record<string, number> = { PENDING: 0, IN_PROGRESS: 0, DONE: 0, NA: 0 };
+  const map = { PENDING: 0, IN_PROGRESS: 0, DONE: 0, NA: 0 };
   for (const row of rows) {
-    const key = row[field] as string;
+    const key = row[field] as keyof typeof map;
     map[key] = (row as { _count: { _all: number } })._count._all;
   }
   return map;

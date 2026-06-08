@@ -2,13 +2,13 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { writeAuditLog } from "@/lib/audit";
 import { NextRequest } from "next/server";
-import type { ImportRow } from "@/lib/excel";
+import type { PlannerRow } from "@/lib/excel";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response(null, { status: 401 });
 
-  const { rows }: { rows: ImportRow[] } = await req.json();
+  const { rows }: { rows: PlannerRow[] } = await req.json();
   if (!rows?.length) return Response.json({ error: "No rows" }, { status: 400 });
 
   let created = 0, updated = 0, skipped = 0;

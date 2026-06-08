@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { writeAuditLog } from "@/lib/audit";
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import type { Department, StageStatus } from "@/generated/prisma";
+import type { Department, StageStatus } from "@/generated/prisma/client";
 
 const stageMap: Record<string, { statusField: string; dateField: string; department: Department }> = {
   drawing:    { statusField: "drawingStatus",    dateField: "drawingDate",    department: "DRAWING" },

@@ -8,7 +8,7 @@ import {
   Upload, Users, ScrollText, Database, LogOut, Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Role } from "@/generated/prisma";
+import type { Role } from "@/generated/prisma/client";
 
 const navItems = [
   { href: "/dashboard",    label: "Dashboard",   icon: LayoutDashboard, roles: ["ADMIN","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT","SALES"] },

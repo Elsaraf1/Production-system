@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Trash2, Pencil, ChevronDown, ChevronRight, Plus, ShoppingCart, PackageCheck, PackageMinus } from "lucide-react";
 import { format } from "@/lib/date";
-import type { SalesOrder, OrderItem } from "@/generated/prisma";
+import type { SalesOrder, OrderItem } from "@/generated/prisma/client";
 
 type PR = { material: string; status: string };
 type ItemWithPRs = OrderItem & { purchaseReqs: PR[] };
@@ -281,8 +281,8 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
                           const active = item.purchaseReqs.filter(p => p.status !== "CANCELLED");
                           if (active.length === 0) return <span className="text-gray-300 text-xs">—</span>;
                           const arrived = active.filter(p => p.status === "RECEIVED").length;
-                          if (arrived === active.length) return <PackageCheck className="h-3.5 w-3.5 text-green-500 mx-auto" title="All arrived" />;
-                          if (arrived > 0) return <PackageMinus className="h-3.5 w-3.5 text-orange-400 mx-auto" title={`${arrived}/${active.length} arrived`} />;
+                          if (arrived === active.length) return <span title="All arrived"><PackageCheck className="h-3.5 w-3.5 text-green-500 mx-auto" /></span>;
+                          if (arrived > 0) return <span title={`${arrived}/${active.length} arrived`}><PackageMinus className="h-3.5 w-3.5 text-orange-400 mx-auto" /></span>;
                           return <span className="text-gray-300 text-xs">—</span>;
                         })()}
                       </td>
@@ -331,7 +331,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
               {STAGES.map(s => (
                 <div key={s.key} className="space-y-1">
                   <Label className="text-xs">{s.label}</Label>
-                  <Select value={editItemForm[s.key as keyof EditItemForm] as string} onValueChange={v => setEditItemForm(f => f && ({ ...f, [s.key]: v }))}>
+                  <Select value={editItemForm[s.key as keyof EditItemForm] as string} onValueChange={v => setEditItemForm(f => f && ({ ...f, [s.key]: v ?? "" }))}>
                     <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
                     <SelectContent>{STATUSES.map(st => <SelectItem key={st} value={st}>{st.replace("_", " ")}</SelectItem>)}</SelectContent>
                   </Select>
@@ -397,7 +397,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
             {STAGES.map(s => (
               <div key={s.key} className="space-y-1">
                 <Label className="text-xs">{s.label}</Label>
-                <Select value={addItemForm[s.key as keyof AddItemForm] as string} onValueChange={v => setAddItemForm(f => ({ ...f, [s.key]: v }))}>
+                <Select value={addItemForm[s.key as keyof AddItemForm] as string} onValueChange={v => setAddItemForm(f => ({ ...f, [s.key]: v ?? "" }))}>
                   <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
                   <SelectContent>{STATUSES.map(st => <SelectItem key={st} value={st}>{st.replace("_", " ")}</SelectItem>)}</SelectContent>
                 </Select>

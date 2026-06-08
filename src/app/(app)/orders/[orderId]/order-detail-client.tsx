@@ -6,7 +6,7 @@ import { ItemDetailsSheet } from "@/components/items/item-details-sheet";
 import { format } from "@/lib/date";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, ShoppingCart, PackageCheck, PackageMinus } from "lucide-react";
-import type { Role, Department, StageStatus, SalesOrder, OrderItem } from "@/generated/prisma";
+import type { Role, Department, StageStatus, SalesOrder, OrderItem } from "@/generated/prisma/client";
 
 const STAGES = [
   { key: "drawing",    label: "Drawing",    dept: "DRAWING" },
@@ -129,9 +129,9 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
                   {/* Arrived symbol — full / partial / none */}
                   <td className="px-3 py-3 text-center">
                     {allArrived
-                      ? <PackageCheck className="h-4 w-4 text-green-500 mx-auto" title="All arrived" />
+                      ? <span title="All arrived"><PackageCheck className="h-4 w-4 text-green-500 mx-auto" /></span>
                       : someArrived
-                        ? <PackageMinus className="h-4 w-4 text-orange-400 mx-auto" title={`${arrivedCount}/${active.length} arrived`} />
+                        ? <span title={`${arrivedCount}/${active.length} arrived`}><PackageMinus className="h-4 w-4 text-orange-400 mx-auto" /></span>
                         : <span className="text-xs text-gray-300">—</span>}
                   </td>
                   <td className="px-4 py-3">

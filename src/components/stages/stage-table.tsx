@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { StageStatusBadge } from "@/components/items/stage-status-badge";
 import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { format } from "@/lib/date";
-import type { StageStatus } from "@/generated/prisma";
+import type { StageStatus } from "@/generated/prisma/client";
 import type { StageRow } from "@/lib/stages";
 
 const statusStyle: Record<StageStatus, string> = {

@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { STAGES, type StageKey, type StageRow } from "@/lib/stages";
 import { StagesClient } from "./stages-client";
-import type { PRStatus, StageStatus } from "@/generated/prisma";
+import type { PRStatus, StageStatus } from "@/generated/prisma/client";
 
 const STAGE_FIELDS = {
   DRAWING:    { statusField: "drawingStatus",    dateField: "drawingDate" },

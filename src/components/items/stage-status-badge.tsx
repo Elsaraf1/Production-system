@@ -1,4 +1,4 @@
-import type { StageStatus } from "@/generated/prisma";
+import type { StageStatus } from "@/generated/prisma/client";
 
 const config: Record<StageStatus, { label: string; className: string }> = {
   PENDING:     { label: "Pending",     className: "bg-gray-100 text-gray-500 border-gray-200" },

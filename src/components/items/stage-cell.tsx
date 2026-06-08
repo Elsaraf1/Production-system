@@ -18,7 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { StageStatus } from "@/generated/prisma";
+import type { StageStatus } from "@/generated/prisma/client";
 
 const STATUSES: StageStatus[] = ["PENDING", "IN_PROGRESS", "DONE", "NA"];
 

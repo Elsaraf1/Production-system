@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { StageStatusBadge } from "@/components/items/stage-status-badge";
 import Link from "next/link";
-import type { StageStatus } from "@/generated/prisma";
+import type { StageStatus } from "@/generated/prisma/client";
 
 const deptStageMap: Record<string, { statusField: string; label: string }> = {
   DRAWING:    { statusField: "drawingStatus",    label: "Drawing" },

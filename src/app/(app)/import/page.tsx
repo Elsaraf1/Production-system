@@ -346,7 +346,7 @@ export default function ImportPage() {
 
       <div className="grid grid-cols-2 gap-4">
         {TABS.map(tab => {
-          const canUse = tab.roles.includes(role);
+          const canUse = (tab.roles as readonly string[]).includes(role);
           const c = cardColors[tab.color as keyof typeof cardColors];
           const Icon = tab.icon;
 

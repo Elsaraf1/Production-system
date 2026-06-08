@@ -79,6 +79,7 @@ export interface PlannerRow {
   paintingStatus?: string;  paintingDate?: string;
   upholsteryStatus?: string; upholsteryDate?: string;
   packingStatus?: string;   packingDate?: string;
+  reasonOfDelay?: string;
 }
 
 export interface ParseResult<T> {
@@ -125,6 +126,7 @@ export function parsePlannerFile(buffer: Buffer): ParseResult<PlannerRow> {
       upholsteryDate:   inventored ? undefined : excelDateToISO(col(r, "Upholstery Date")),
       packingStatus:    inventored ? "DONE" : normaliseStatus(col(r, "Packing Status",    "packing")),
       packingDate:      inventored ? undefined : excelDateToISO(col(r, "Packing Date")),
+      reasonOfDelay:    String(col(r, "Reason of Delay") ?? "").trim() || undefined,
     });
   });
 

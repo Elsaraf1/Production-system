@@ -71,7 +71,7 @@ export function CreateUserForm() {
           </div>
           <div className="space-y-1">
             <Label>Role</Label>
-            <Select value={form.role} onValueChange={v => setForm(f => ({ ...f, role: v, department: "" }))}>
+            <Select value={form.role} onValueChange={v => setForm(f => ({ ...f, role: v ?? "", department: "" }))}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{ROLES.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
             </Select>
@@ -79,7 +79,7 @@ export function CreateUserForm() {
           {needsDept && (
             <div className="space-y-1">
               <Label>Department</Label>
-              <Select value={form.department} onValueChange={v => setForm(f => ({ ...f, department: v }))}>
+              <Select value={form.department} onValueChange={v => setForm(f => ({ ...f, department: v ?? "" }))}>
                 <SelectTrigger><SelectValue placeholder="Select department" /></SelectTrigger>
                 <SelectContent>{DEPARTMENTS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
               </Select>

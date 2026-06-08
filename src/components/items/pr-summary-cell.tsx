@@ -20,9 +20,9 @@ export function PrSummaryCell({ prs }: Props) {
 
   return (
     <div className="flex gap-2 items-center">
-      <ShoppingCart className="h-4 w-4 text-amber-500" title="Materials requested" />
+      <span title="Materials requested"><ShoppingCart className="h-4 w-4 text-amber-500" /></span>
       {hasArrived
-        ? <PackageCheck className="h-4 w-4 text-green-500" title="Some materials arrived" />
+        ? <span title="Some materials arrived"><PackageCheck className="h-4 w-4 text-green-500" /></span>
         : <span className="text-gray-200"><PackageCheck className="h-4 w-4" /></span>
       }
     </div>

@@ -1,4 +1,4 @@
-import type { StageStatus } from "@/generated/prisma";
+import type { StageStatus } from "@/generated/prisma/client";
 
 export type StageKey = "DRAWING" | "CARPENTRY" | "PAINTING" | "UPHOLSTERY" | "PACKING" | "PR";
 

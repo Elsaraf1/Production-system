@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
   if (!config) return Response.json({ error: "Invalid type" }, { status: 400 });
 
   const buffer = config.fn();
-  return new Response(buffer, {
+  return new Response(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "Content-Disposition": `attachment; filename="${config.name}"`,
