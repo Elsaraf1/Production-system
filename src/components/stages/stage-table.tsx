@@ -1,0 +1,235 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { StageStatusBadge } from "@/components/items/stage-status-badge";
+import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { format } from "@/lib/date";
+import type { StageStatus } from "@/generated/prisma";
+import type { StageRow } from "@/lib/stages";
+
+const statusStyle: Record<StageStatus, string> = {
+  PENDING:     "bg-gray-100 text-gray-500",
+  IN_PROGRESS: "bg-blue-100 text-blue-700",
+  DONE:        "bg-green-100 text-green-700",
+  NA:          "bg-zinc-100 text-zinc-400",
+};
+
+const statusLabel: Record<StageStatus, string> = {
+  PENDING:     "Pending",
+  IN_PROGRESS: "In Progress",
+  DONE:        "Done",
+  NA:          "N/A",
+};
+
+const ALL_STATUSES: StageStatus[] = ["PENDING", "IN_PROGRESS", "DONE", "NA"];
+
+type SortKey = keyof Omit<StageRow, "id" | "salesOrderId">;
+type SortDir = "asc" | "desc";
+
+const COLS: { key: SortKey; label: string; filterable?: boolean }[] = [
+  { key: "ppoNumber",         label: "PPO Number",          filterable: true },
+  { key: "clientName",        label: "Client",              filterable: true },
+  { key: "rsd",               label: "RSD" },
+  { key: "itemCode",          label: "Item Code",           filterable: true },
+  { key: "description",       label: "Description",         filterable: true },
+  { key: "productionOrderNo", label: "Production Order No", filterable: true },
+  { key: "outstandingQty",    label: "Qty" },
+  { key: "status",            label: "Status",              filterable: true },
+  { key: "date",              label: "Date" },
+];
+
+export function StageTable({ rows, stageLabel }: { rows: StageRow[]; stageLabel: string }) {
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [colFilters, setColFilters] = useState<Partial<Record<SortKey, string>>>({});
+  const [statusFilter, setStatusFilter] = useState<Set<StageStatus>>(new Set());
+  const [sortKey, setSortKey] = useState<SortKey>("rsd");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [showColFilters, setShowColFilters] = useState(false);
+
+  const presentStatuses = useMemo(
+    () => ALL_STATUSES.filter(s => rows.some(r => r.status === s)),
+    [rows]
+  );
+
+  function toggleStatus(s: StageStatus) {
+    setStatusFilter(prev => {
+      const next = new Set(prev);
+      next.has(s) ? next.delete(s) : next.add(s);
+      return next;
+    });
+  }
+
+  function handleSort(key: SortKey) {
+    if (sortKey === key) setSortDir(d => d === "asc" ? "desc" : "asc");
+    else { setSortKey(key); setSortDir("asc"); }
+  }
+
+  const filtered = useMemo(() => {
+    let data = rows;
+    if (globalFilter) {
+      const q = globalFilter.toLowerCase();
+      data = data.filter(r =>
+        Object.values(r).some(v => String(v ?? "").toLowerCase().includes(q))
+      );
+    }
+    if (statusFilter.size > 0) {
+      data = data.filter(r => statusFilter.has(r.status));
+    }
+    for (const [k, v] of Object.entries(colFilters)) {
+      if (!v) continue;
+      const q = v.toLowerCase();
+      data = data.filter(r => String(r[k as SortKey] ?? "").toLowerCase().includes(q));
+    }
+    return [...data].sort((a, b) => {
+      const av = a[sortKey];
+      const bv = b[sortKey];
+      if (typeof av === "number" && typeof bv === "number") {
+        return sortDir === "asc" ? av - bv : bv - av;
+      }
+      const as = String(av ?? "");
+      const bs = String(bv ?? "");
+      return sortDir === "asc" ? as.localeCompare(bs) : bs.localeCompare(as);
+    });
+  }, [rows, globalFilter, colFilters, statusFilter, sortKey, sortDir]);
+
+  const counts = useMemo(() => {
+    const c: Record<StageStatus, number> = { PENDING: 0, IN_PROGRESS: 0, DONE: 0, NA: 0 };
+    for (const r of rows) c[r.status]++;
+    return c;
+  }, [rows]);
+
+  function SortIcon({ col }: { col: SortKey }) {
+    if (sortKey !== col) return <ChevronsUpDown className="h-3 w-3 text-gray-300 inline ml-1" />;
+    return sortDir === "asc"
+      ? <ChevronUp className="h-3 w-3 text-gray-600 inline ml-1" />
+      : <ChevronDown className="h-3 w-3 text-gray-600 inline ml-1" />;
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold">{stageLabel}</h2>
+          <div className="flex gap-4 mt-1 text-sm text-muted-foreground">
+            <span>{rows.length} total</span>
+            <span className="text-gray-500 font-medium">{counts.PENDING} pending</span>
+            <span className="text-blue-600 font-medium">{counts.IN_PROGRESS} in progress</span>
+            <span className="text-green-600 font-medium">{counts.DONE} done</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder="Search all…"
+            value={globalFilter}
+            onChange={e => setGlobalFilter(e.target.value)}
+            className="w-52 h-9"
+          />
+          <button
+            onClick={() => setShowColFilters(v => !v)}
+            className={`text-xs px-3 py-2 rounded-md border transition-colors ${showColFilters ? "bg-gray-900 text-white border-gray-900" : "border-gray-200 hover:bg-gray-50"}`}
+          >
+            Column Filters
+          </button>
+        </div>
+      </div>
+
+      <div className="rounded-xl border bg-white overflow-hidden shadow-sm">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-50 border-b">
+              {COLS.map(col => (
+                <th
+                  key={col.key}
+                  className="text-left px-4 py-3 font-semibold text-gray-600 cursor-pointer select-none whitespace-nowrap hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSort(col.key)}
+                >
+                  {col.label}
+                  <SortIcon col={col.key} />
+                </th>
+              ))}
+            </tr>
+
+            {/* Column filter row */}
+            {showColFilters && (
+              <tr className="border-b bg-gray-50/50">
+                {COLS.map(col => (
+                  <td key={col.key} className="px-2 py-1.5">
+                    {col.key === "status" ? (
+                      /* Status: checkbox row */
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {presentStatuses.map(s => (
+                          <label key={s} className="flex items-center gap-1 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={statusFilter.has(s)}
+                              onChange={() => toggleStatus(s)}
+                              className="h-3.5 w-3.5 accent-gray-700 rounded"
+                            />
+                            <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${statusStyle[s]}`}>
+                              {statusLabel[s]}
+                            </span>
+                          </label>
+                        ))}
+                        {statusFilter.size > 0 && (
+                          <button
+                            onClick={() => setStatusFilter(new Set())}
+                            className="text-xs text-gray-400 hover:text-gray-700 underline ml-1"
+                          >
+                            clear
+                          </button>
+                        )}
+                      </div>
+                    ) : col.filterable ? (
+                      <Input
+                        placeholder="Filter…"
+                        value={colFilters[col.key] ?? ""}
+                        onChange={e => setColFilters(f => ({ ...f, [col.key]: e.target.value }))}
+                        className="h-7 text-xs"
+                      />
+                    ) : <div />}
+                  </td>
+                ))}
+              </tr>
+            )}
+          </thead>
+
+          <tbody className="divide-y">
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={COLS.length} className="px-4 py-10 text-center text-muted-foreground">
+                  No items found.
+                </td>
+              </tr>
+            )}
+            {filtered.map(row => {
+              const isOverdue = row.status !== "DONE" && row.status !== "NA" && new Date(row.rsd) < new Date();
+              return (
+                <tr key={row.id} className="hover:bg-gray-50/70 transition-colors">
+                  <td className="px-4 py-3 font-mono text-gray-900 font-medium">
+                    <Link href={`/orders/${row.salesOrderId}`} className="hover:underline">{row.ppoNumber}</Link>
+                  </td>
+                  <td className="px-4 py-3 text-gray-600">{row.clientName}</td>
+                  <td className="px-4 py-3">
+                    <span className={`text-sm ${isOverdue ? "text-red-600 font-semibold" : "text-gray-600"}`}>
+                      {format(row.rsd)}
+                    </span>
+                    {isOverdue && <span className="ml-1 text-xs text-red-500">overdue</span>}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-xs text-gray-500">{row.itemCode}</td>
+                  <td className="px-4 py-3 text-gray-600">{row.description}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-gray-500">{row.productionOrderNo || "—"}</td>
+                  <td className="px-4 py-3 text-gray-600">{row.outstandingQty}</td>
+                  <td className="px-4 py-3"><StageStatusBadge status={row.status} /></td>
+                  <td className="px-4 py-3 text-gray-500 text-sm">{format(row.date)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

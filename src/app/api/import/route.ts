@@ -1,0 +1,53 @@
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { parsePlannerFile } from "@/lib/excel";
+import { NextRequest } from "next/server";
+
+export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session) return new Response(null, { status: 401 });
+  if (!["ADMIN", "PLANNER"].includes(session.user.role)) return new Response(null, { status: 403 });
+
+  const formData = await req.formData();
+  const file = formData.get("file") as File | null;
+  if (!file) return Response.json({ error: "No file" }, { status: 400 });
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const { rows, errors } = parsePlannerFile(buffer);
+
+  if (errors.length) return Response.json({ errors, preview: [], rows: [] });
+  if (rows.length === 0) return Response.json({ errors: ["No data rows found"], preview: [], rows: [] });
+
+  const ppNumbers = [...new Set(rows.map(r => r.ppoNumber))];
+  const existingOrders = await prisma.salesOrder.findMany({
+    where: { ppoNumber: { in: ppNumbers } },
+    include: { items: true },
+  });
+  const orderMap = new Map(existingOrders.map(o => [o.ppoNumber, o]));
+
+  const preview = rows.map(row => {
+    const order = orderMap.get(row.ppoNumber);
+    const items = order?.items.filter(i => i.itemCode === row.itemCode) ?? [];
+    const changes: string[] = [];
+    if (items.length > 0) {
+      const item = items[0];
+      const fields: [string, string][] = [
+        ["drawingStatus","Drawing"],["carpentryStatus","Carpentry"],
+        ["paintingStatus","Painting"],["upholsteryStatus","Upholstery"],["packingStatus","Packing"],
+      ];
+      for (const [f, label] of fields) {
+        const newVal = row[f as keyof typeof row];
+        if (newVal && newVal !== item[f as keyof typeof item]) {
+          changes.push(`${label}: ${item[f as keyof typeof item]} → ${newVal}`);
+        }
+      }
+    }
+    return {
+      ppoNumber: row.ppoNumber, itemCode: row.itemCode, description: row.description,
+      isNewOrder: !order, isNewItem: items.length === 0,
+      affectsCount: items.length, changes,
+    };
+  });
+
+  return Response.json({ preview, errors, rows });
+}

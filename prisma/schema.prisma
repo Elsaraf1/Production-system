@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  PRODUCTION
+  PLANNER
+  TECHNICAL
+  PROCUREMENT
+  SALES
+}
+
+enum Department {
+  DRAWING
+  CARPENTRY
+  PAINTING
+  UPHOLSTERY
+  PACKING
+  PR_CREATION
+}
+
+enum StageStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+  NA
+}
+
+enum PRMaterial {
+  MARBLE
+  GLASS
+  MIRROR
+  PORCELAIN
+  METAL
+  HANDLES
+  OTHER
+}
+
+enum PRStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  ORDERED
+  RECEIVED
+  CANCELLED
+}
+
+enum EntityType {
+  SALES_ORDER
+  ORDER_ITEM
+  PURCHASE_REQUISITION
+  NOTE
+  USER
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum AuditSource {
+  UI
+  EXCEL_IMPORT
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id           String      @id @default(cuid())
+  username     String      @unique
+  passwordHash String
+  displayName  String
+  role         Role
+  department   Department?
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+
+  notes             Note[]             @relation("NoteAuthor")
+  deletedNotes      Note[]             @relation("NoteDeleter")
+  purchaseReqs      PurchaseRequisition[]
+  auditLogs         AuditLog[]
+}
+
+model SalesOrder {
+  id         String      @id @default(cuid())
+  ppoNumber  String      @unique
+  clientName String
+  orderDate  DateTime
+  rsd        DateTime
+  version    Int         @default(0)
+  createdAt  DateTime    @default(now())
+
+  items      OrderItem[]
+}
+
+model OrderItem {
+  id                String      @id @default(cuid())
+  salesOrderId      String
+  itemCode          String
+  description       String      @default("")
+  productionOrderNo String      @default("")
+  outstandingQty    Int         @default(0)
+  requiresMaterial  Boolean     @default(true)
+
+  drawingStatus     StageStatus @default(PENDING)
+  drawingDate       DateTime?
+  carpentryStatus   StageStatus @default(PENDING)
+  carpentryDate     DateTime?
+  paintingStatus    StageStatus @default(PENDING)
+  paintingDate      DateTime?
+  upholsteryStatus  StageStatus @default(PENDING)
+  upholsteryDate    DateTime?
+  packingStatus     StageStatus @default(PENDING)
+  packingDate       DateTime?
+
+  reasonOfDelay     String?
+  sortOrder         Int         @default(0)
+  version           Int         @default(0)
+  createdAt         DateTime    @default(now())
+
+  salesOrder        SalesOrder  @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  notes             Note[]
+  purchaseReqs      PurchaseRequisition[]
+  auditLogs         AuditLog[]
+}
+
+model PurchaseRequisition {
+  id            String     @id @default(cuid())
+  orderItemId   String
+  prNumber      String     @unique
+  material      PRMaterial
+  quantity      Float
+  unit          String
+  status        PRStatus   @default(DRAFT)
+  requestedDate DateTime?
+  receivedDate  DateTime?
+  createdById   String
+  version       Int        @default(0)
+  createdAt     DateTime   @default(now())
+
+  orderItem     OrderItem  @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  createdBy     User       @relation(fields: [createdById], references: [id])
+}
+
+model Note {
+  id          String    @id @default(cuid())
+  orderItemId String
+  content     String
+  authorId    String
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+  deletedById String?
+
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  author      User      @relation("NoteAuthor", fields: [authorId], references: [id])
+  deletedBy   User?     @relation("NoteDeleter", fields: [deletedById], references: [id])
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  userId      String
+  entityType  EntityType
+  entityId    String
+  orderItemId String?
+  action      AuditAction
+  fieldName   String?
+  oldValue    String?
+  newValue    String?
+  source      AuditSource @default(UI)
+  createdAt   DateTime    @default(now())
+
+  user        User        @relation(fields: [userId], references: [id])
+  orderItem   OrderItem?  @relation(fields: [orderItemId], references: [id])
+}
