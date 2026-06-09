@@ -37,8 +37,12 @@ export default async function UsersPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  {u.id !== session?.user.id && u.isActive && (
-                    <UserActions userId={u.id} username={u.username} />
+                  {u.isActive && (
+                    <UserActions
+                      userId={u.id}
+                      username={u.username}
+                      isSelf={u.id === session?.user.id}
+                    />
                   )}
                 </td>
               </tr>
