@@ -100,32 +100,50 @@ function ImportFlow({ tab, onBack }: { tab: typeof TABS[number]; onBack: () => v
   async function handleUpload() {
     if (!file) return;
     startTransition(async () => {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch(tab.apiPath, { method: "POST", body: fd });
-      const data = await res.json();
-      setParseErrors(data.errors ?? []);
-      if ((data.errors?.length && !data.preview && !data.rows)) return;
-      setPreview(data.preview ?? null);
-      setRows(data.rows ?? []);
-      setStep("preview");
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch(tab.apiPath, { method: "POST", body: fd });
+        if (!res.ok && res.headers.get("content-type")?.includes("text/html")) {
+          setParseErrors([`Server error (${res.status}). Check Vercel function logs.`]);
+          return;
+        }
+        const data = await res.json();
+        setParseErrors(data.errors ?? []);
+        if ((data.errors?.length && !data.preview && !data.rows)) return;
+        setPreview(data.preview ?? null);
+        setRows(data.rows ?? []);
+        setStep("preview");
+      } catch (err) {
+        setParseErrors([`Unexpected error: ${err instanceof Error ? err.message : String(err)}`]);
+      }
     });
   }
 
   async function handleConfirm() {
     startTransition(async () => {
-      let res: Response;
-      if (tab.isJson) {
-        res = await fetch(tab.confirmApiPath, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rows }) });
-      } else {
-        const fd = new FormData();
-        fd.append("file", file!);
-        fd.append("confirm", "true");
-        res = await fetch(tab.confirmApiPath, { method: "POST", body: fd });
+      try {
+        let res: Response;
+        if (tab.isJson) {
+          res = await fetch(tab.confirmApiPath, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rows }) });
+        } else {
+          const fd = new FormData();
+          fd.append("file", file!);
+          fd.append("confirm", "true");
+          res = await fetch(tab.confirmApiPath, { method: "POST", body: fd });
+        }
+        if (!res.ok && res.headers.get("content-type")?.includes("text/html")) {
+          setParseErrors([`Server error (${res.status}). Check Vercel function logs.`]);
+          setStep("upload");
+          return;
+        }
+        const data = await res.json();
+        setResult(data);
+        setStep("done");
+      } catch (err) {
+        setParseErrors([`Unexpected error: ${err instanceof Error ? err.message : String(err)}`]);
+        setStep("upload");
       }
-      const data = await res.json();
-      setResult(data);
-      setStep("done");
     });
   }
 

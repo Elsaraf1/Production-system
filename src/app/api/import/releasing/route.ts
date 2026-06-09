@@ -5,6 +5,7 @@ import { writeAuditLog } from "@/lib/audit";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
+  try {
   const session = await auth();
   if (!session) return new Response(null, { status: 401 });
   if (!["ADMIN", "TECHNICAL"].includes(session.user.role)) return new Response(null, { status: 403 });
@@ -76,4 +77,8 @@ export async function POST(req: NextRequest) {
   });
 
   return Response.json({ updated: toUpdate.length, skipped: alreadyDone, notFound: notFound.length });
+  } catch (err) {
+    console.error("[import/releasing]", err);
+    return Response.json({ errors: [`Server error: ${err instanceof Error ? err.message : String(err)}`], preview: null }, { status: 500 });
+  }
 }
