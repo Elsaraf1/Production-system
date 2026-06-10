@@ -41,6 +41,8 @@ enum PRMaterial {
   PORCELAIN
   METAL
   HANDLES
+  BRASS
+  LAMITAK_LIPPING
   OTHER
 }
 

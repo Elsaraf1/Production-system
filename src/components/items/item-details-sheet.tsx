@@ -35,13 +35,15 @@ interface Props {
 }
 
 const MATERIALS = [
-  { key: "MARBLE",    label: "Marble" },
-  { key: "METAL",     label: "Metal" },
-  { key: "GLASS",     label: "Glass" },
-  { key: "HANDLES",   label: "Handle" },
-  { key: "MIRROR",    label: "Mirror" },
-  { key: "PORCELAIN", label: "Porcelain" },
-  { key: "OTHER",     label: "Other" },
+  { key: "MARBLE",          label: "Marble" },
+  { key: "METAL",           label: "Metal" },
+  { key: "GLASS",           label: "Glass" },
+  { key: "HANDLES",         label: "Handle" },
+  { key: "MIRROR",          label: "Mirror" },
+  { key: "PORCELAIN",       label: "Porcelain" },
+  { key: "BRASS",           label: "Brass" },
+  { key: "LAMITAK_LIPPING", label: "Lamitak & Lipping" },
+  { key: "OTHER",           label: "Other" },
 ] as const;
 
 export function ItemDetailsSheet({

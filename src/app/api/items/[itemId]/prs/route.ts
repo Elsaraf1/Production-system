@@ -19,7 +19,7 @@ export async function GET(_req: NextRequest, ctx: RouteContext<"/api/items/[item
 
 const postSchema = z.object({
   prNumber: z.string().min(1),
-  material: z.enum(["MARBLE", "GLASS", "MIRROR", "PORCELAIN", "METAL", "HANDLES"]),
+  material: z.enum(["MARBLE", "GLASS", "MIRROR", "PORCELAIN", "METAL", "HANDLES", "BRASS", "LAMITAK_LIPPING", "OTHER"]),
   quantity: z.number().positive(),
   unit: z.string().min(1),
   requestedDate: z.string().nullable().optional(),

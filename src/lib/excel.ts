@@ -4,7 +4,7 @@ import * as XLSX from "xlsx";
 
 const VALID_STATUSES = ["PENDING", "IN_PROGRESS", "DONE", "NA"] as const;
 
-export const VALID_MATERIALS = ["MARBLE", "GLASS", "MIRROR", "PORCELAIN", "METAL", "HANDLES", "OTHER"] as const;
+export const VALID_MATERIALS = ["MARBLE", "GLASS", "MIRROR", "PORCELAIN", "METAL", "HANDLES", "BRASS", "LAMITAK_LIPPING", "OTHER"] as const;
 export type ValidMaterial = typeof VALID_MATERIALS[number];
 
 function normaliseStatus(val: unknown): string | undefined {
@@ -172,6 +172,10 @@ function normaliseMaterial(val: unknown): string | undefined {
     "MARBLE": "MARBLE", "GLASS": "GLASS", "MIRROR": "MIRROR",
     "PORCELAIN": "PORCELAIN", "METAL": "METAL",
     "HANDLE": "HANDLES", "HANDLES": "HANDLES",
+    "BRASS": "BRASS",
+    "LAMITAK": "LAMITAK_LIPPING", "LIPPING": "LAMITAK_LIPPING",
+    "LAMITAK_LIPPING": "LAMITAK_LIPPING", "LAMITAK_&_LIPPING": "LAMITAK_LIPPING",
+    "LAMITAK_AND_LIPPING": "LAMITAK_LIPPING",
     "OTHER": "OTHER",
   };
   return map[s];

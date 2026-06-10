@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       id: randomUUID(),
       orderItemId: m.itemId,
       prNumber: `${m.itemId.slice(-6).toUpperCase()}-${m.material}-IMP`,
-      material: m.material as "MARBLE" | "GLASS" | "MIRROR" | "PORCELAIN" | "METAL" | "HANDLES" | "OTHER",
+      material: m.material as "MARBLE" | "GLASS" | "MIRROR" | "PORCELAIN" | "METAL" | "HANDLES" | "BRASS" | "LAMITAK_LIPPING" | "OTHER",
       quantity: 1, unit: "-", status: "SUBMITTED" as const,
       requestedDate: new Date(),
       createdById: session.user.id,
