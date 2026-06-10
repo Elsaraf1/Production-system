@@ -47,15 +47,10 @@ export async function POST(req: NextRequest) {
             productionOrderNo: row.productionOrderNo ?? "",
             outstandingQty: row.outstandingQty ?? 0,
             drawingStatus: (row.drawingStatus as "PENDING" | "IN_PROGRESS" | "DONE" | "NA") ?? "PENDING",
-            drawingDate: row.drawingDate ? new Date(row.drawingDate) : null,
             carpentryStatus: (row.carpentryStatus as "PENDING" | "IN_PROGRESS" | "DONE" | "NA") ?? "PENDING",
-            carpentryDate: row.carpentryDate ? new Date(row.carpentryDate) : null,
             paintingStatus: (row.paintingStatus as "PENDING" | "IN_PROGRESS" | "DONE" | "NA") ?? "PENDING",
-            paintingDate: row.paintingDate ? new Date(row.paintingDate) : null,
             upholsteryStatus: (row.upholsteryStatus as "PENDING" | "IN_PROGRESS" | "DONE" | "NA") ?? "PENDING",
-            upholsteryDate: row.upholsteryDate ? new Date(row.upholsteryDate) : null,
             packingStatus: (row.packingStatus as "PENDING" | "IN_PROGRESS" | "DONE" | "NA") ?? "PENDING",
-            packingDate: row.packingDate ? new Date(row.packingDate) : null,
             reasonOfDelay: row.reasonOfDelay ?? null,
           },
         });
@@ -68,20 +63,19 @@ export async function POST(req: NextRequest) {
       } else {
         // Update only changed fields
         const updateData: Record<string, unknown> = {};
-        const stageFields: Array<[string, string | undefined, string, string | undefined]> = [
-          ["drawingStatus", row.drawingStatus, "drawingDate", row.drawingDate],
-          ["carpentryStatus", row.carpentryStatus, "carpentryDate", row.carpentryDate],
-          ["paintingStatus", row.paintingStatus, "paintingDate", row.paintingDate],
-          ["upholsteryStatus", row.upholsteryStatus, "upholsteryDate", row.upholsteryDate],
-          ["packingStatus", row.packingStatus, "packingDate", row.packingDate],
+        const stageFields: Array<[string, string | undefined]> = [
+          ["drawingStatus", row.drawingStatus],
+          ["carpentryStatus", row.carpentryStatus],
+          ["paintingStatus", row.paintingStatus],
+          ["upholsteryStatus", row.upholsteryStatus],
+          ["packingStatus", row.packingStatus],
         ];
         const auditEntries: Array<{ field: string; old: string | null; newVal: string | null }> = [];
 
-        for (const [statusField, newStatus, dateField, newDate] of stageFields) {
+        for (const [statusField, newStatus] of stageFields) {
           if (newStatus && newStatus !== (existing as Record<string, unknown>)[statusField]) {
             auditEntries.push({ field: statusField, old: String((existing as Record<string, unknown>)[statusField] ?? ""), newVal: newStatus });
             updateData[statusField] = newStatus;
-            if (newDate) updateData[dateField] = new Date(newDate);
           }
         }
         if (row.reasonOfDelay !== undefined && row.reasonOfDelay !== existing.reasonOfDelay) {

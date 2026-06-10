@@ -74,11 +74,11 @@ export interface PlannerRow {
   description?: string;
   productionOrderNo?: string;
   outstandingQty?: number;
-  drawingStatus?: string;   drawingDate?: string;
-  carpentryStatus?: string; carpentryDate?: string;
-  paintingStatus?: string;  paintingDate?: string;
-  upholsteryStatus?: string; upholsteryDate?: string;
-  packingStatus?: string;   packingDate?: string;
+  drawingStatus?: string;
+  carpentryStatus?: string;
+  paintingStatus?: string;
+  upholsteryStatus?: string;
+  packingStatus?: string;
   reasonOfDelay?: string;
 }
 
@@ -117,15 +117,10 @@ export function parsePlannerFile(buffer: Buffer): ParseResult<PlannerRow> {
       productionOrderNo: productionOrderNo || undefined,
       outstandingQty: Number(col(r, "Outstanding Qty", "qty") ?? 0) || undefined,
       drawingStatus:    inventored ? "DONE" : normaliseStatus(col(r, "Drawing Status",    "drawing")),
-      drawingDate:      inventored ? undefined : excelDateToISO(col(r, "Drawing Date")),
       carpentryStatus:  inventored ? "DONE" : normaliseStatus(col(r, "Carpentry Status",  "carpentry")),
-      carpentryDate:    inventored ? undefined : excelDateToISO(col(r, "Carpentry Date")),
       paintingStatus:   inventored ? "DONE" : normaliseStatus(col(r, "Painting Status",   "painting")),
-      paintingDate:     inventored ? undefined : excelDateToISO(col(r, "Painting Date")),
       upholsteryStatus: inventored ? "DONE" : normaliseStatus(col(r, "Upholstery Status", "upholstery")),
-      upholsteryDate:   inventored ? undefined : excelDateToISO(col(r, "Upholstery Date")),
       packingStatus:    inventored ? "DONE" : normaliseStatus(col(r, "Packing Status",    "packing")),
-      packingDate:      inventored ? undefined : excelDateToISO(col(r, "Packing Date")),
       reasonOfDelay:    String(col(r, "Reason of Delay") ?? "").trim() || undefined,
     });
   });
@@ -219,12 +214,10 @@ export function buildPlannerSample(): Buffer {
   return buildSample(
     ["PPO Number", "Client Name", "Order Date", "RSD", "Item Code", "Description",
      "Production Order No", "Outstanding Qty",
-     "Drawing Status", "Drawing Date", "Carpentry Status", "Carpentry Date",
-     "Painting Status", "Painting Date", "Upholstery Status", "Upholstery Date",
-     "Packing Status", "Packing Date"],
+     "Drawing Status", "Carpentry Status", "Painting Status", "Upholstery Status", "Packing Status"],
     ["PPO-12345", "Client Name", "2026-01-01", "2026-06-30",
      "CHR-001", "Dining Chair", "PO-001", 10,
-     "DONE", "2026-02-01", "IN_PROGRESS", "", "PENDING", "", "PENDING", "", "PENDING", ""]
+     "DONE", "IN_PROGRESS", "PENDING", "PENDING", "PENDING"]
   );
 }
 

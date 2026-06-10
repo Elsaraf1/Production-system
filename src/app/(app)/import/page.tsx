@@ -18,7 +18,7 @@ const TABS = [
     subtitle: "Orders & Stage Data",
     icon: FileSpreadsheet,
     color: "blue",
-    columns: ["PPO Number*", "Item Code*", "Client Name", "Order Date", "RSD", "Description", "Production Order No", "Outstanding Qty", "Drawing/Carpentry/Painting/Upholstery/Packing Status+Date"],
+    columns: ["PPO Number*", "Item Code*", "Client Name", "Order Date", "RSD", "Description", "Production Order No", "Outstanding Qty", "Drawing/Carpentry/Painting/Upholstery/Packing Status"],
     effect: "Creates new orders/items and updates existing stage statuses.",
     roles: ["ADMIN", "PLANNER"],
     apiPath: "/api/import",

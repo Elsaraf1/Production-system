@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, AlertTriangle, Clock, CheckCircle } from "lucide-react";
 import { StageChart } from "./stage-chart";
+import { DepartmentTimeChart } from "./department-time-chart";
+import { getAverageStageDurations } from "@/lib/department-stats";
 import { format } from "@/lib/date";
 import Link from "next/link";
 
@@ -35,6 +37,8 @@ export default async function DashboardPage() {
       })
     )
   );
+
+  const departmentDurations = await getAverageStageDurations();
 
   const chartData = [
     { name: "Drawing",    ...toMap(drawing,    "drawingStatus") },
@@ -102,6 +106,16 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">Average Time per Department (days)</CardTitle></CardHeader>
+        <CardContent>
+          <DepartmentTimeChart data={departmentDurations} />
+          <p className="text-xs text-muted-foreground mt-2">
+            Production stages: time from In Progress to Done. Procurement: time from material request to receipt.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
