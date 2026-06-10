@@ -4,6 +4,7 @@ import { parseMaterialFile } from "@/lib/excel";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
+  try {
   const session = await auth();
   if (!session) return new Response(null, { status: 401 });
   if (!["ADMIN", "PROCUREMENT"].includes(session.user.role)) return new Response(null, { status: 403 });
@@ -82,4 +83,8 @@ export async function POST(req: NextRequest) {
   }, { timeout: 30000 });
 
   return Response.json({ updated: toUpdate.length, skipped: alreadyReceived, notFound: notFound.length });
+  } catch (err) {
+    console.error("[import/material-receive]", err);
+    return Response.json({ errors: [`Server error: ${err instanceof Error ? err.message : String(err)}`], preview: null }, { status: 500 });
+  }
 }

@@ -5,6 +5,7 @@ import { NextRequest } from "next/server";
 import type { PlannerRow } from "@/lib/excel";
 
 export async function POST(req: NextRequest) {
+  try {
   const session = await auth();
   if (!session) return new Response(null, { status: 401 });
 
@@ -110,4 +111,8 @@ export async function POST(req: NextRequest) {
   }
 
   return Response.json({ created, updated, skipped });
+  } catch (err) {
+    console.error("[import/confirm]", err);
+    return Response.json({ error: `Server error: ${err instanceof Error ? err.message : String(err)}` }, { status: 500 });
+  }
 }
