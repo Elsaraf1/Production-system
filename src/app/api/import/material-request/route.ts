@@ -1,8 +1,8 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseMaterialFile } from "@/lib/excel";
-import { writeAuditLog } from "@/lib/audit";
 import { NextRequest } from "next/server";
+import { randomUUID } from "crypto";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -56,24 +56,27 @@ export async function POST(req: NextRequest) {
   }
 
   await prisma.$transaction(async (tx) => {
-    for (const m of toCreate) {
-      const pr = await tx.purchaseRequisition.create({
-        data: {
-          orderItemId: m.itemId,
-          prNumber: `${m.itemId.slice(-6).toUpperCase()}-${m.material}-IMP`,
-          material: m.material as "MARBLE" | "GLASS" | "MIRROR" | "PORCELAIN" | "METAL" | "HANDLES" | "OTHER",
-          quantity: 1, unit: "-", status: "SUBMITTED",
-          requestedDate: new Date(),
-          createdById: session.user.id,
-        },
-      });
-      await writeAuditLog(tx, {
-        userId: session.user.id, entityType: "PURCHASE_REQUISITION", entityId: pr.id,
-        orderItemId: m.itemId, action: "CREATE", source: "EXCEL_IMPORT",
+    if (toCreate.length === 0) return;
+
+    const prData = toCreate.map(m => ({
+      id: randomUUID(),
+      orderItemId: m.itemId,
+      prNumber: `${m.itemId.slice(-6).toUpperCase()}-${m.material}-IMP`,
+      material: m.material as "MARBLE" | "GLASS" | "MIRROR" | "PORCELAIN" | "METAL" | "HANDLES" | "OTHER",
+      quantity: 1, unit: "-", status: "SUBMITTED" as const,
+      requestedDate: new Date(),
+      createdById: session.user.id,
+    }));
+
+    await tx.purchaseRequisition.createMany({ data: prData });
+    await tx.auditLog.createMany({
+      data: toCreate.map((m, i) => ({
+        userId: session.user.id, entityType: "PURCHASE_REQUISITION" as const, entityId: prData[i].id,
+        orderItemId: m.itemId, action: "CREATE" as const, source: "EXCEL_IMPORT" as const,
         newValue: `${m.material} requested`,
-      });
-    }
-  });
+      })),
+    });
+  }, { timeout: 30000 });
 
   return Response.json({ created: toCreate.length, skipped: matches.length - toCreate.length, notFound: notFound.length });
 }

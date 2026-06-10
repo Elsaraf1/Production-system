@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseMaterialFile } from "@/lib/excel";
-import { writeAuditLog } from "@/lib/audit";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -57,19 +56,30 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // Batch by previous status to minimize round trips
   await prisma.$transaction(async (tx) => {
+    const byStatus = new Map<string, string[]>();
     for (const m of toUpdate) {
-      await tx.purchaseRequisition.update({
-        where: { id: m.prId },
-        data: { status: "RECEIVED", receivedDate: new Date(), version: { increment: 1 } }, // receivedDate = now
-      });
-      await writeAuditLog(tx, {
-        userId: session.user.id, entityType: "PURCHASE_REQUISITION", entityId: m.prId,
-        orderItemId: m.itemId, action: "UPDATE", fieldName: "status",
-        oldValue: m.currentStatus, newValue: "RECEIVED", source: "EXCEL_IMPORT",
+      const ids = byStatus.get(m.currentStatus) ?? [];
+      ids.push(m.prId);
+      byStatus.set(m.currentStatus, ids);
+    }
+    for (const ids of byStatus.values()) {
+      await tx.purchaseRequisition.updateMany({
+        where: { id: { in: ids } },
+        data: { status: "RECEIVED", receivedDate: new Date(), version: { increment: 1 } },
       });
     }
-  });
+    if (toUpdate.length > 0) {
+      await tx.auditLog.createMany({
+        data: toUpdate.map(m => ({
+          userId: session.user.id, entityType: "PURCHASE_REQUISITION" as const, entityId: m.prId,
+          orderItemId: m.itemId, action: "UPDATE" as const, fieldName: "status",
+          oldValue: m.currentStatus, newValue: "RECEIVED", source: "EXCEL_IMPORT" as const,
+        })),
+      });
+    }
+  }, { timeout: 30000 });
 
   return Response.json({ updated: toUpdate.length, skipped: alreadyReceived, notFound: notFound.length });
 }

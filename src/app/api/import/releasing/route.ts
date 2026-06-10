@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseReleasingFile } from "@/lib/excel";
-import { writeAuditLog } from "@/lib/audit";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -61,20 +60,30 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Apply
+  // Apply — batch by previous status to minimize round trips
   await prisma.$transaction(async (tx) => {
+    const byStatus = new Map<string, string[]>();
     for (const m of toUpdate) {
-      await tx.orderItem.update({
-        where: { id: m.itemId },
+      const ids = byStatus.get(m.currentStatus) ?? [];
+      ids.push(m.itemId);
+      byStatus.set(m.currentStatus, ids);
+    }
+    for (const ids of byStatus.values()) {
+      await tx.orderItem.updateMany({
+        where: { id: { in: ids } },
         data: { drawingStatus: "DONE", version: { increment: 1 } },
       });
-      await writeAuditLog(tx, {
-        userId: session.user.id, entityType: "ORDER_ITEM", entityId: m.itemId,
-        orderItemId: m.itemId, action: "UPDATE", fieldName: "drawingStatus",
-        oldValue: m.currentStatus, newValue: "DONE", source: "EXCEL_IMPORT",
+    }
+    if (toUpdate.length > 0) {
+      await tx.auditLog.createMany({
+        data: toUpdate.map(m => ({
+          userId: session.user.id, entityType: "ORDER_ITEM" as const, entityId: m.itemId,
+          orderItemId: m.itemId, action: "UPDATE" as const, fieldName: "drawingStatus",
+          oldValue: m.currentStatus, newValue: "DONE", source: "EXCEL_IMPORT" as const,
+        })),
       });
     }
-  });
+  }, { timeout: 30000 });
 
   return Response.json({ updated: toUpdate.length, skipped: alreadyDone, notFound: notFound.length });
   } catch (err) {
