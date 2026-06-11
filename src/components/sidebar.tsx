@@ -1,13 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   LayoutDashboard, ClipboardList, RefreshCw, ShoppingCart,
-  Upload, Users, ScrollText, Database, LogOut, Layers,
+  Upload, Users, ScrollText, Database, LogOut, Layers, Menu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import type { Role } from "@/generated/prisma/client";
 
 const navItems = [
@@ -35,12 +37,13 @@ interface SidebarProps { role: Role; displayName: string; }
 
 export function Sidebar({ role, displayName }: SidebarProps) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
   const visible = navItems.filter(item => (item.roles as readonly string[]).includes(role));
 
   const initials = displayName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
-  return (
-    <aside className="flex flex-col w-60 min-h-screen bg-gray-900 text-gray-100">
+  const navContent = (
+    <>
       {/* Brand */}
       <div className="px-5 py-5 border-b border-gray-700">
         <p className="font-bold text-white text-sm tracking-wide">Production Dashboard</p>
@@ -61,13 +64,14 @@ export function Sidebar({ role, displayName }: SidebarProps) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {visible.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
             <Link
               key={href}
               href={href}
+              onClick={() => setOpen(false)}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                 isActive
@@ -92,6 +96,41 @@ export function Sidebar({ role, displayName }: SidebarProps) {
           Sign out
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile top bar */}
+      <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-gray-900 text-white">
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Open navigation menu"
+          className="p-1.5 -ml-1.5 rounded-lg hover:bg-gray-800 transition-colors"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <p className="font-bold text-sm tracking-wide">Production Dashboard</p>
+        <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold shrink-0">
+          {initials}
+        </div>
+      </div>
+
+      {/* Mobile drawer */}
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent
+          side="left"
+          className="bg-gray-900 text-gray-100 border-gray-800 p-0 gap-0 flex flex-col [&>button]:text-gray-400 [&>button]:hover:text-white [&>button]:hover:bg-gray-800"
+        >
+          <SheetTitle className="sr-only">Navigation menu</SheetTitle>
+          {navContent}
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex flex-col w-60 min-h-screen bg-gray-900 text-gray-100">
+        {navContent}
+      </aside>
+    </>
   );
 }

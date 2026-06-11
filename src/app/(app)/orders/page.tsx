@@ -25,17 +25,17 @@ export default async function OrdersPage({ searchParams }: Props) {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Sales Orders</h1>
           <p className="text-muted-foreground text-sm mt-0.5">{orders.length} order{orders.length !== 1 ? "s" : ""}</p>
         </div>
-        <form method="get" className="w-64">
+        <form method="get" className="w-full sm:w-64">
           <Input name="q" defaultValue={q} placeholder="Search PPO or client…" className="h-9" />
         </form>
       </div>
 
-      <div className="rounded-xl border bg-white overflow-hidden shadow-sm">
+      <div className="rounded-xl border bg-white overflow-x-auto shadow-sm">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b">

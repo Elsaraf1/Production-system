@@ -13,9 +13,9 @@ export default async function AppLayout({
 
   return (
     <SessionProvider session={session}>
-      <div className="flex min-h-screen">
+      <div className="flex flex-col lg:flex-row min-h-screen">
         <Sidebar role={session.user.role} displayName={session.user.displayName} />
-        <main className="flex-1 overflow-auto bg-gray-50/50 p-7">{children}</main>
+        <main className="flex-1 overflow-auto bg-gray-50/50 p-4 sm:p-6 lg:p-7">{children}</main>
       </div>
     </SessionProvider>
   );

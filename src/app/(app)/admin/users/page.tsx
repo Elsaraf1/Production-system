@@ -12,7 +12,7 @@ export default async function UsersPage() {
     <div className="space-y-6 max-w-4xl">
       <h1 className="text-2xl font-semibold">User Management</h1>
       <CreateUserForm />
-      <div className="rounded-lg border bg-white overflow-hidden">
+      <div className="rounded-lg border bg-white overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>

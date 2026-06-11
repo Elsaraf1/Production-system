@@ -7,6 +7,9 @@ const VALID_STATUSES = ["PENDING", "IN_PROGRESS", "DONE", "NA"] as const;
 export const VALID_MATERIALS = ["MARBLE", "GLASS", "MIRROR", "PORCELAIN", "METAL", "HANDLES", "BRASS", "LAMITAK_LIPPING", "OTHER"] as const;
 export type ValidMaterial = typeof VALID_MATERIALS[number];
 
+// Sentinel value for "this item needs no material" rows in the Material Request import
+export const NO_MATERIAL_VALUE = "NONE";
+
 function normaliseStatus(val: unknown): string | undefined {
   if (val === null || val === undefined || val === "") return undefined;
   const raw = String(val).trim();
@@ -172,6 +175,9 @@ function normaliseMaterial(val: unknown): string | undefined {
     "LAMITAK_LIPPING": "LAMITAK_LIPPING", "LAMITAK_&_LIPPING": "LAMITAK_LIPPING",
     "LAMITAK_AND_LIPPING": "LAMITAK_LIPPING",
     "OTHER": "OTHER",
+    "NA": NO_MATERIAL_VALUE, "N/A": NO_MATERIAL_VALUE, "#N/A": NO_MATERIAL_VALUE,
+    "NONE": NO_MATERIAL_VALUE, "NOT_APPLICABLE": NO_MATERIAL_VALUE,
+    "NOT_REQUIRED": NO_MATERIAL_VALUE, "NO_MATERIAL": NO_MATERIAL_VALUE,
   };
   return map[s];
 }
@@ -192,7 +198,7 @@ export function parseMaterialFile(buffer: Buffer): ParseResult<MaterialRow> {
     if (!ppoNumber) { errors.push(`Row ${rowNum}: PPO Number is empty`); return; }
     if (!itemCode)  { errors.push(`Row ${rowNum}: Item Code is empty`); return; }
     if (!material)  {
-      errors.push(`Row ${rowNum}: Material "${col(r, "Material")}" is invalid. Valid: ${VALID_MATERIALS.join(", ")}`);
+      errors.push(`Row ${rowNum}: Material "${col(r, "Material")}" is invalid. Valid: ${VALID_MATERIALS.join(", ")}, or N/A (item needs no material)`);
       return;
     }
     result.push({ ppoNumber, itemCode, material });
@@ -203,9 +209,9 @@ export function parseMaterialFile(buffer: Buffer): ParseResult<MaterialRow> {
 
 // ─── Sample builders ──────────────────────────────────────────────────────────
 
-function buildSample(headers: string[], example: unknown[]): Buffer {
+function buildSample(headers: string[], examples: unknown[][]): Buffer {
   const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet([headers, example]);
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...examples]);
   XLSX.utils.book_append_sheet(wb, ws, "Sample");
   return Buffer.from(XLSX.write(wb, { type: "buffer", bookType: "xlsx" }));
 }
@@ -215,22 +221,25 @@ export function buildPlannerSample(): Buffer {
     ["PPO Number", "Client Name", "Order Date", "RSD", "Item Code", "Description",
      "Production Order No", "Outstanding Qty",
      "Drawing Status", "Carpentry Status", "Painting Status", "Upholstery Status", "Packing Status"],
-    ["PPO-12345", "Client Name", "2026-01-01", "2026-06-30",
+    [["PPO-12345", "Client Name", "2026-01-01", "2026-06-30",
      "CHR-001", "Dining Chair", "PO-001", 10,
-     "DONE", "IN_PROGRESS", "PENDING", "PENDING", "PENDING"]
+     "DONE", "IN_PROGRESS", "PENDING", "PENDING", "PENDING"]]
   );
 }
 
 export function buildReleasingSample(): Buffer {
   return buildSample(
     ["PPO Number", "Item Code"],
-    ["PPO-12345", "CHR-001"]
+    [["PPO-12345", "CHR-001"]]
   );
 }
 
 export function buildMaterialSample(): Buffer {
   return buildSample(
     ["PPO Number", "Item Code", "Material"],
-    ["PPO-12345", "CHR-001", "MARBLE"]
+    [
+      ["PPO-12345", "CHR-001", "MARBLE"],
+      ["PPO-12345", "CHR-002", "N/A"],
+    ]
   );
 }

@@ -47,7 +47,7 @@ const TABS = [
     icon: ShoppingCart,
     color: "orange",
     columns: ["PPO Number*", "Item Code*", "Material*"],
-    effect: "Creates a material request for all matching items. Valid materials: Marble, Glass, Mirror, Porcelain, Metal, Handles, Other.",
+    effect: "Creates a material request for all matching items. Valid materials: Marble, Glass, Mirror, Porcelain, Metal, Handles, Brass, Lamitak & Lipping, Other. Use N/A to mark an item as needing no material.",
     roles: ["ADMIN", "TECHNICAL"],
     apiPath: "/api/import/material-request",
     confirmApiPath: "/api/import/material-request",
@@ -221,7 +221,7 @@ function ImportFlow({ tab, onBack }: { tab: typeof TABS[number]; onBack: () => v
       {step === "preview" && (
         <div className="space-y-4">
           {/* Stats row */}
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {plannerPreview && (
               <>
                 <StatCard label="New Orders"    value={plannerPreview.filter(r => r.isNewOrder).length}                               color="blue" />
@@ -362,7 +362,7 @@ export default function ImportPage() {
         <p className="text-muted-foreground text-sm mt-1">Choose an import type below. Locked options require a different role.</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {TABS.map(tab => {
           const canUse = (tab.roles as readonly string[]).includes(role);
           const c = cardColors[tab.color as keyof typeof cardColors];

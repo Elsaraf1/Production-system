@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Trash2, Pencil, ChevronDown, ChevronRight, Plus, ShoppingCart, PackageCheck, PackageMinus } from "lucide-react";
+import { Trash2, Pencil, ChevronDown, ChevronRight, Plus, ShoppingCart, PackageCheck, PackageMinus, Ban } from "lucide-react";
 import { format } from "@/lib/date";
 import type { SalesOrder, OrderItem } from "@/generated/prisma/client";
 
@@ -184,7 +184,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Data Management</h1>
           <p className="text-sm text-muted-foreground">{filtered.length} orders · {totalItems} items</p>
@@ -193,7 +193,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
           placeholder="Search PPO, client or item code…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-72"
+          className="w-full sm:w-72"
         />
       </div>
 
@@ -270,6 +270,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
                       <td className="px-3 py-2 text-xs text-orange-600 max-w-[100px] truncate">{item.reasonOfDelay || "—"}</td>
                       <td className="px-2 py-2 text-center">
                         {(() => {
+                          if (!item.requiresMaterial) return <span title="N/A — item needs no material"><Ban className="h-3.5 w-3.5 text-red-400 mx-auto" /></span>;
                           const active = item.purchaseReqs.filter(p => p.status !== "CANCELLED");
                           return active.length > 0
                             ? <ShoppingCart className="h-3.5 w-3.5 text-amber-500 mx-auto" />
@@ -278,6 +279,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
                       </td>
                       <td className="px-2 py-2 text-center">
                         {(() => {
+                          if (!item.requiresMaterial) return <span title="N/A — item needs no material"><Ban className="h-3.5 w-3.5 text-red-400 mx-auto" /></span>;
                           const active = item.purchaseReqs.filter(p => p.status !== "CANCELLED");
                           if (active.length === 0) return <span className="text-gray-300 text-xs">—</span>;
                           const arrived = active.filter(p => p.status === "RECEIVED").length;
@@ -315,7 +317,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Edit Item: {editItem?.itemCode}</DialogTitle></DialogHeader>
           {editItemForm && (
-            <div className="grid grid-cols-2 gap-3 py-2 max-h-[60vh] overflow-y-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-2 max-h-[60vh] overflow-y-auto">
               <div className="col-span-2 space-y-1">
                 <Label className="text-xs">Description</Label>
                 <Input value={editItemForm.description} onChange={e => setEditItemForm(f => f && ({ ...f, description: e.target.value }))} />
@@ -377,7 +379,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
       <Dialog open={!!addToOrder} onOpenChange={() => { setAddToOrder(null); setAddItemForm(defaultAddItem); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Add Item to {addToOrder?.ppoNumber}</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-3 py-2 max-h-[60vh] overflow-y-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-2 max-h-[60vh] overflow-y-auto">
             <div className="space-y-1">
               <Label className="text-xs">Item Code <span className="text-red-500">*</span></Label>
               <Input value={addItemForm.itemCode} onChange={e => setAddItemForm(f => ({ ...f, itemCode: e.target.value }))} placeholder="e.g. CHR-001" />

@@ -118,10 +118,10 @@ export function ProcurementClient({ rows: initialRows, canEdit }: { rows: PRRow[
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Purchase Requisitions</h1>
-          <div className="flex gap-4 mt-1 text-sm text-muted-foreground">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-muted-foreground">
             <span>{rows.length} total</span>
             <span className="text-orange-600 font-medium">{pending} pending</span>
             <span className="text-green-600 font-medium">{received} received</span>
@@ -132,18 +132,18 @@ export function ProcurementClient({ rows: initialRows, canEdit }: { rows: PRRow[
             placeholder="Search all…"
             value={globalFilter}
             onChange={e => setGlobalFilter(e.target.value)}
-            className="w-52 h-9"
+            className="w-full sm:w-52 h-9"
           />
           <button
             onClick={() => setShowColFilters(v => !v)}
-            className={`text-xs px-3 py-2 rounded-md border transition-colors ${showColFilters ? "bg-gray-900 text-white border-gray-900" : "border-gray-200 hover:bg-gray-50"}`}
+            className={`shrink-0 text-xs px-3 py-2 rounded-md border transition-colors ${showColFilters ? "bg-gray-900 text-white border-gray-900" : "border-gray-200 hover:bg-gray-50"}`}
           >
             Column Filters
           </button>
         </div>
       </div>
 
-      <div className="rounded-xl border bg-white overflow-hidden shadow-sm">
+      <div className="rounded-xl border bg-white overflow-x-auto shadow-sm">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b">

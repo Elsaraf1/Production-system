@@ -5,7 +5,7 @@ import { StageCell } from "@/components/items/stage-cell";
 import { ItemDetailsSheet } from "@/components/items/item-details-sheet";
 import { format } from "@/lib/date";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, ShoppingCart, PackageCheck, PackageMinus } from "lucide-react";
+import { MessageSquare, ShoppingCart, PackageCheck, PackageMinus, Ban } from "lucide-react";
 import type { Role, Department, StageStatus, SalesOrder, OrderItem } from "@/generated/prisma/client";
 
 const STAGES = [
@@ -122,17 +122,21 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
                   </td>
                   {/* Required symbol */}
                   <td className="px-3 py-3 text-center">
-                    {hasRequired
-                      ? <ShoppingCart className="h-4 w-4 text-amber-500 mx-auto" />
-                      : <span className="text-xs text-gray-300">—</span>}
+                    {!item.requiresMaterial
+                      ? <span title="N/A — item needs no material"><Ban className="h-4 w-4 text-red-400 mx-auto" /></span>
+                      : hasRequired
+                        ? <ShoppingCart className="h-4 w-4 text-amber-500 mx-auto" />
+                        : <span className="text-xs text-gray-300">—</span>}
                   </td>
                   {/* Arrived symbol — full / partial / none */}
                   <td className="px-3 py-3 text-center">
-                    {allArrived
-                      ? <span title="All arrived"><PackageCheck className="h-4 w-4 text-green-500 mx-auto" /></span>
-                      : someArrived
-                        ? <span title={`${arrivedCount}/${active.length} arrived`}><PackageMinus className="h-4 w-4 text-orange-400 mx-auto" /></span>
-                        : <span className="text-xs text-gray-300">—</span>}
+                    {!item.requiresMaterial
+                      ? <span title="N/A — item needs no material"><Ban className="h-4 w-4 text-red-400 mx-auto" /></span>
+                      : allArrived
+                        ? <span title="All arrived"><PackageCheck className="h-4 w-4 text-green-500 mx-auto" /></span>
+                        : someArrived
+                          ? <span title={`${arrivedCount}/${active.length} arrived`}><PackageMinus className="h-4 w-4 text-orange-400 mx-auto" /></span>
+                          : <span className="text-xs text-gray-300">—</span>}
                   </td>
                   <td className="px-4 py-3">
                     <Button variant="ghost" size="sm" onClick={() => setSelectedItem(item)} className="h-7 px-2">

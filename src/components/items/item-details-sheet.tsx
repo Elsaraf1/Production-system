@@ -234,7 +234,7 @@ export function ItemDetailsSheet({
                       <td className="py-2.5 text-center">
                         {!requiresMaterial ? (
                           <span title="N/A — item needs no material" className="block">
-                            <Ban className="h-4 w-4 text-zinc-300 mx-auto" />
+                            <Ban className="h-4 w-4 text-red-400 mx-auto" />
                           </span>
                         ) : (
                           <input
@@ -250,7 +250,7 @@ export function ItemDetailsSheet({
                       <td className="py-2.5 text-center">
                         {!requiresMaterial ? (
                           <span title="N/A — item needs no material" className="block">
-                            <Ban className="h-4 w-4 text-zinc-300 mx-auto" />
+                            <Ban className="h-4 w-4 text-red-400 mx-auto" />
                           </span>
                         ) : (
                           <input
