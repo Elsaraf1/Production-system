@@ -4,10 +4,11 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { StageStatusBadge } from "@/components/items/stage-status-badge";
+import { StageCell } from "@/components/items/stage-cell";
 import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { format } from "@/lib/date";
 import type { StageStatus } from "@/generated/prisma/client";
-import type { StageRow } from "@/lib/stages";
+import { STAGE_API_KEY, type StageKey, type StageRow } from "@/lib/stages";
 
 const statusStyle: Record<StageStatus, string> = {
   PENDING:     "bg-gray-100 text-gray-500",
@@ -40,7 +41,8 @@ const COLS: { key: SortKey; label: string; filterable?: boolean }[] = [
   { key: "date",              label: "Date" },
 ];
 
-export function StageTable({ rows, stageLabel }: { rows: StageRow[]; stageLabel: string }) {
+export function StageTable({ rows: initialRows, stageLabel, stageKey, canEdit }: { rows: StageRow[]; stageLabel: string; stageKey: StageKey; canEdit: boolean }) {
+  const [rows, setRows] = useState(initialRows);
   const [globalFilter, setGlobalFilter] = useState("");
   const [colFilters, setColFilters] = useState<Partial<Record<SortKey, string>>>({});
   const [statusFilter, setStatusFilter] = useState<Set<StageStatus>>(new Set());
@@ -222,7 +224,24 @@ export function StageTable({ rows, stageLabel }: { rows: StageRow[]; stageLabel:
                   <td className="px-4 py-3 text-gray-600">{row.description}</td>
                   <td className="px-4 py-3 font-mono text-xs text-gray-500">{row.productionOrderNo || "—"}</td>
                   <td className="px-4 py-3 text-gray-600">{row.outstandingQty}</td>
-                  <td className="px-4 py-3"><StageStatusBadge status={row.status} /></td>
+                  <td className="px-4 py-3">
+                    {stageKey === "PR" ? (
+                      <StageStatusBadge status={row.status} />
+                    ) : (
+                      <StageCell
+                        itemId={row.id}
+                        stage={STAGE_API_KEY[stageKey]}
+                        status={row.status}
+                        version={row.version}
+                        canEdit={canEdit}
+                        onUpdate={(newStatus, newVersion) => {
+                          setRows(prev => prev.map(r =>
+                            r.id === row.id ? { ...r, status: newStatus, version: newVersion, date: null } : r
+                          ));
+                        }}
+                      />
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-gray-500 text-sm">{format(row.date)}</td>
                 </tr>
               );

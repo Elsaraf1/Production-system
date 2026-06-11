@@ -153,7 +153,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
       if (res.ok) {
         const newItem = await res.json();
         setOrders(prev => prev.map(o =>
-          o.id === addToOrder.id ? { ...o, items: [...o.items, newItem] } : o
+          o.id === addToOrder.id ? { ...o, items: [...o.items, { ...newItem, purchaseReqs: [] }] } : o
         ));
         // Expand the order so the new item is visible
         setCollapsed(prev => { const next = new Set(prev); next.delete(addToOrder.id); return next; });
@@ -326,7 +326,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Outstanding Qty</Label>
-                <Input type="number" value={editItemForm.outstandingQty} onChange={e => setEditItemForm(f => f && ({ ...f, outstandingQty: Number(e.target.value) }))} />
+                <Input type="number" step="0.01" value={editItemForm.outstandingQty} onChange={e => setEditItemForm(f => f && ({ ...f, outstandingQty: Number(e.target.value) }))} />
               </div>
               {STAGES.map(s => (
                 <div key={s.key} className="space-y-1">
@@ -392,7 +392,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Outstanding Qty</Label>
-              <Input type="number" value={addItemForm.outstandingQty} onChange={e => setAddItemForm(f => ({ ...f, outstandingQty: Number(e.target.value) }))} />
+              <Input type="number" step="0.01" value={addItemForm.outstandingQty} onChange={e => setAddItemForm(f => ({ ...f, outstandingQty: Number(e.target.value) }))} />
             </div>
             {STAGES.map(s => (
               <div key={s.key} className="space-y-1">

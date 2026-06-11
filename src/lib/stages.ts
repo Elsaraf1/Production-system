@@ -14,6 +14,7 @@ export interface StageRow {
   outstandingQty: number;
   status: StageStatus;
   date: string | null;
+  version: number;
 }
 
 export const STAGES: { key: StageKey; label: string }[] = [
@@ -24,3 +25,12 @@ export const STAGES: { key: StageKey; label: string }[] = [
   { key: "PACKING",    label: "Packing" },
   { key: "PR",         label: "PR" },
 ];
+
+/** Maps a StageKey to the lowercase `stage` param expected by PATCH /api/items/[itemId]/stage */
+export const STAGE_API_KEY: Record<Exclude<StageKey, "PR">, string> = {
+  DRAWING:    "drawing",
+  CARPENTRY:  "carpentry",
+  PAINTING:   "painting",
+  UPHOLSTERY: "upholstery",
+  PACKING:    "packing",
+};

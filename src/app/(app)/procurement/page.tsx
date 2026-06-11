@@ -1,7 +1,11 @@
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ProcurementClient } from "./procurement-client";
 
 export default async function ProcurementPage() {
+  const session = await auth();
+  if (!session) return null;
+
   const prs = await prisma.purchaseRequisition.findMany({
     where: { status: { not: "CANCELLED" } },
     include: {
@@ -13,6 +17,7 @@ export default async function ProcurementPage() {
 
   const rows = prs.map(pr => ({
     id: pr.id,
+    itemId:      pr.orderItemId,
     ppoNumber:   pr.orderItem.salesOrder.ppoNumber,
     clientName:  pr.orderItem.salesOrder.clientName,
     rsd:         pr.orderItem.salesOrder.rsd.toISOString(),
@@ -24,5 +29,7 @@ export default async function ProcurementPage() {
     createdBy:   pr.createdBy.displayName,
   }));
 
-  return <ProcurementClient rows={rows} />;
+  const canEdit = ["ADMIN", "PROCUREMENT"].includes(session.user.role);
+
+  return <ProcurementClient rows={rows} canEdit={canEdit} />;
 }

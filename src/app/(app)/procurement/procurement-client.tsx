@@ -2,16 +2,19 @@
 
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { PRStatusCell } from "@/components/items/pr-status-cell";
 import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import type { PRStatus } from "@/generated/prisma/client";
 
 interface PRRow {
   id: string;
+  itemId: string;
   ppoNumber: string;
   clientName: string;
   rsd: string;
   itemCode: string;
   material: string;
-  status: string;
+  status: PRStatus;
   requestedDate: string | null;
   receivedDate: string | null;
   createdBy: string;
@@ -51,7 +54,8 @@ const COLS: { key: SortKey; label: string; filterable?: boolean }[] = [
 
 const ALL_STATUSES = ["DRAFT", "SUBMITTED", "APPROVED", "ORDERED", "RECEIVED"] as const;
 
-export function ProcurementClient({ rows }: { rows: PRRow[] }) {
+export function ProcurementClient({ rows: initialRows, canEdit }: { rows: PRRow[]; canEdit: boolean }) {
+  const [rows, setRows] = useState(initialRows);
   const [globalFilter, setGlobalFilter] = useState("");
   const [colFilters, setColFilters] = useState<Partial<Record<SortKey, string>>>({});
   const [statusFilter, setStatusFilter] = useState<Set<string>>(new Set()); // empty = show all
@@ -224,9 +228,15 @@ export function ProcurementClient({ rows }: { rows: PRRow[] }) {
                     <span className="font-medium text-gray-700">{pr.material}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyle[pr.status] ?? "bg-gray-100 text-gray-600"}`}>
-                      {statusLabel[pr.status] ?? pr.status}
-                    </span>
+                    <PRStatusCell
+                      itemId={pr.itemId}
+                      prId={pr.id}
+                      status={pr.status}
+                      canEdit={canEdit}
+                      onUpdate={(newStatus) => {
+                        setRows(prev => prev.map(r => r.id === pr.id ? { ...r, status: newStatus } : r));
+                      }}
+                    />
                   </td>
                   <td className="px-4 py-3 text-gray-500 text-sm">{fmt(pr.requestedDate)}</td>
                   <td className="px-4 py-3 text-gray-500 text-sm">{fmt(pr.receivedDate)}</td>

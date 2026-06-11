@@ -7,7 +7,7 @@ import { z } from "zod";
 const editSchema = z.object({
   description: z.string().optional(),
   productionOrderNo: z.string().optional(),
-  outstandingQty: z.number().int().min(0).optional(),
+  outstandingQty: z.number().min(0).optional(),
   drawingStatus: z.enum(["PENDING", "IN_PROGRESS", "DONE", "NA"]).optional(),
   carpentryStatus: z.enum(["PENDING", "IN_PROGRESS", "DONE", "NA"]).optional(),
   paintingStatus: z.enum(["PENDING", "IN_PROGRESS", "DONE", "NA"]).optional(),

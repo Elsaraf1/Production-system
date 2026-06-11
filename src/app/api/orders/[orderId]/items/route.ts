@@ -8,7 +8,7 @@ const schema = z.object({
   itemCode: z.string().min(1),
   description: z.string().default(""),
   productionOrderNo: z.string().default(""),
-  outstandingQty: z.number().int().min(0).default(0),
+  outstandingQty: z.number().min(0).default(0),
   drawingStatus: z.enum(["PENDING", "IN_PROGRESS", "DONE", "NA"]).default("PENDING"),
   carpentryStatus: z.enum(["PENDING", "IN_PROGRESS", "DONE", "NA"]).default("PENDING"),
   paintingStatus: z.enum(["PENDING", "IN_PROGRESS", "DONE", "NA"]).default("PENDING"),

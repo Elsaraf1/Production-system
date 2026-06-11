@@ -110,7 +110,7 @@ model OrderItem {
   itemCode          String
   description       String      @default("")
   productionOrderNo String      @default("")
-  outstandingQty    Int         @default(0)
+  outstandingQty    Float       @default(0)
   requiresMaterial  Boolean     @default(true)
 
   drawingStatus     StageStatus @default(PENDING)

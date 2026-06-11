@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StageTable } from "@/components/stages/stage-table";
 import { STAGES, type StageKey, type StageRow } from "@/lib/stages";
 
-export function StagesClient({ data, defaultStage }: { data: Record<StageKey, StageRow[]>; defaultStage: StageKey }) {
+export function StagesClient({ data, defaultStage, canEdit }: { data: Record<StageKey, StageRow[]>; defaultStage: StageKey; canEdit: Record<StageKey, boolean> }) {
   return (
     <div className="space-y-4">
       <div>
@@ -20,7 +20,7 @@ export function StagesClient({ data, defaultStage }: { data: Record<StageKey, St
         </TabsList>
         {STAGES.map(s => (
           <TabsContent key={s.key} value={s.key} className="mt-4">
-            <StageTable rows={data[s.key]} stageLabel={s.label} />
+            <StageTable rows={data[s.key]} stageLabel={s.label} stageKey={s.key} canEdit={canEdit[s.key]} />
           </TabsContent>
         ))}
       </Tabs>

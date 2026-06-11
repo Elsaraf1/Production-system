@@ -64,6 +64,7 @@ export default async function StagesPage() {
         description: item.description,
         productionOrderNo: item.productionOrderNo,
         outstandingQty: item.outstandingQty,
+        version: item.version,
       };
       if (key === "PR") {
         return {
@@ -86,5 +87,15 @@ export default async function StagesPage() {
   if (department === "PR_CREATION") defaultStage = "PR";
   else if (department && department in STAGE_FIELDS) defaultStage = department as StageKey;
 
-  return <StagesClient data={data} defaultStage={defaultStage} />;
+  const { role } = session.user;
+  const canEdit: Record<StageKey, boolean> = {
+    DRAWING:    role === "ADMIN" || (role === "PRODUCTION" && department === "DRAWING") || role === "TECHNICAL",
+    CARPENTRY:  role === "ADMIN" || (role === "PRODUCTION" && department === "CARPENTRY") || role === "PLANNER",
+    PAINTING:   role === "ADMIN" || (role === "PRODUCTION" && department === "PAINTING") || role === "PLANNER",
+    UPHOLSTERY: role === "ADMIN" || (role === "PRODUCTION" && department === "UPHOLSTERY") || role === "PLANNER",
+    PACKING:    role === "ADMIN" || (role === "PRODUCTION" && department === "PACKING") || role === "PLANNER",
+    PR: false,
+  };
+
+  return <StagesClient data={data} defaultStage={defaultStage} canEdit={canEdit} />;
 }

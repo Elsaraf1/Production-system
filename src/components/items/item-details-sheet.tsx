@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Trash2, AlertTriangle, ShoppingCart, PackageCheck } from "lucide-react";
+import { Trash2, AlertTriangle, ShoppingCart, PackageCheck, Ban } from "lucide-react";
 import type { Role } from "@/generated/prisma/client";
 
 interface Note {
@@ -232,23 +232,35 @@ export function ItemDetailsSheet({
                       </td>
                       {/* Required checkbox */}
                       <td className="py-2.5 text-center">
-                        <input
-                          type="checkbox"
-                          checked={required}
-                          disabled={isPending || !canRequest}
-                          onChange={e => toggleRequired(key, e.target.checked)}
-                          className="h-4 w-4 accent-amber-500 cursor-pointer disabled:cursor-not-allowed"
-                        />
+                        {!requiresMaterial ? (
+                          <span title="N/A — item needs no material" className="block">
+                            <Ban className="h-4 w-4 text-zinc-300 mx-auto" />
+                          </span>
+                        ) : (
+                          <input
+                            type="checkbox"
+                            checked={required}
+                            disabled={isPending || !canRequest}
+                            onChange={e => toggleRequired(key, e.target.checked)}
+                            className="h-4 w-4 accent-amber-500 cursor-pointer disabled:cursor-not-allowed"
+                          />
+                        )}
                       </td>
                       {/* Arrived checkbox — only active if Required is checked */}
                       <td className="py-2.5 text-center">
-                        <input
-                          type="checkbox"
-                          checked={arrived}
-                          disabled={isPending || !canReceive || !required}
-                          onChange={e => toggleArrived(key, e.target.checked)}
-                          className="h-4 w-4 accent-green-500 cursor-pointer disabled:cursor-not-allowed"
-                        />
+                        {!requiresMaterial ? (
+                          <span title="N/A — item needs no material" className="block">
+                            <Ban className="h-4 w-4 text-zinc-300 mx-auto" />
+                          </span>
+                        ) : (
+                          <input
+                            type="checkbox"
+                            checked={arrived}
+                            disabled={isPending || !canReceive || !required}
+                            onChange={e => toggleArrived(key, e.target.checked)}
+                            className="h-4 w-4 accent-green-500 cursor-pointer disabled:cursor-not-allowed"
+                          />
+                        )}
                       </td>
                     </tr>
                   );
