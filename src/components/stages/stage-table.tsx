@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { StageStatusBadge } from "@/components/items/stage-status-badge";
 import { StageCell } from "@/components/items/stage-cell";
+import { ProductionOrderCell } from "@/components/items/production-order-cell";
 import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { format } from "@/lib/date";
 import type { StageStatus } from "@/generated/prisma/client";
@@ -222,7 +223,7 @@ export function StageTable({ rows: initialRows, stageLabel, stageKey, canEdit }:
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-gray-500">{row.itemCode}</td>
                   <td className="px-4 py-3 text-gray-600">{row.description}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-gray-500">{row.productionOrderNo || "—"}</td>
+                  <td className="px-4 py-3"><ProductionOrderCell value={row.productionOrderNo} /></td>
                   <td className="px-4 py-3 text-gray-600">{row.outstandingQty}</td>
                   <td className="px-4 py-3">
                     {stageKey === "PR" ? (

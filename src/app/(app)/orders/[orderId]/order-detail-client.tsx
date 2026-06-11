@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { StageCell } from "@/components/items/stage-cell";
 import { ItemDetailsSheet } from "@/components/items/item-details-sheet";
+import { ProductionOrderCell } from "@/components/items/production-order-cell";
 import { format } from "@/lib/date";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, ShoppingCart, PackageCheck, PackageMinus, Ban } from "lucide-react";
@@ -97,7 +98,7 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
               return (
                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 font-mono">{item.itemCode}</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{item.productionOrderNo || "—"}</td>
+                  <td className="px-4 py-3"><ProductionOrderCell value={item.productionOrderNo} /></td>
                   <td className="px-4 py-3">{item.description}</td>
                   <td className="px-4 py-3">{item.outstandingQty}</td>
                   {STAGES.map(s => {

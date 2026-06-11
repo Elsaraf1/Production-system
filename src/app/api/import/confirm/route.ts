@@ -8,6 +8,7 @@ export async function POST(req: NextRequest) {
   try {
   const session = await auth();
   if (!session) return new Response(null, { status: 401 });
+  if (!["ADMIN", "PLANNER"].includes(session.user.role)) return new Response(null, { status: 403 });
 
   const { rows }: { rows: PlannerRow[] } = await req.json();
   if (!rows?.length) return Response.json({ error: "No rows" }, { status: 400 });
@@ -82,6 +83,10 @@ export async function POST(req: NextRequest) {
           updateData.reasonOfDelay = row.reasonOfDelay;
         }
         if (row.outstandingQty !== undefined) updateData.outstandingQty = row.outstandingQty;
+        if (row.productionOrderNo !== undefined && row.productionOrderNo !== existing.productionOrderNo) {
+          auditEntries.push({ field: "productionOrderNo", old: existing.productionOrderNo, newVal: row.productionOrderNo });
+          updateData.productionOrderNo = row.productionOrderNo;
+        }
 
         if (Object.keys(updateData).length > 0) {
           await prisma.$transaction(async (tx) => {

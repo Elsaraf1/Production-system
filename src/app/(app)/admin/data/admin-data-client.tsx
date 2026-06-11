@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { ProductionOrderCell } from "@/components/items/production-order-cell";
 import { Trash2, Pencil, ChevronDown, ChevronRight, Plus, ShoppingCart, PackageCheck, PackageMinus, Ban } from "lucide-react";
 import { format } from "@/lib/date";
 import type { SalesOrder, OrderItem } from "@/generated/prisma/client";
@@ -257,7 +258,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
                     <tr key={item.id} className="border-b hover:bg-gray-50 transition-colors">
                       <td className="px-3 py-2" />
                       <td className="px-3 py-2 font-mono text-xs">{item.itemCode}</td>
-                      <td className="px-3 py-2 text-xs text-muted-foreground">{item.productionOrderNo || "—"}</td>
+                      <td className="px-3 py-2"><ProductionOrderCell value={item.productionOrderNo} /></td>
                       <td className="px-3 py-2 max-w-[180px] truncate">{item.description}</td>
                       <td className="px-3 py-2">{item.outstandingQty}</td>
                       {STAGES.map(s => (

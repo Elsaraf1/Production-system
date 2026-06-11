@@ -207,6 +207,41 @@ export function parseMaterialFile(buffer: Buffer): ParseResult<MaterialRow> {
   return { rows: result, errors };
 }
 
+// ─── Inventory Update (Production Order No) ───────────────────────────────────
+
+export interface InventoryRow {
+  itemId: string;
+  ppoNumber: string;
+  itemCode: string;
+  productionOrderNo: string;
+}
+
+const INVENTORY_REQUIRED = ["Item ID", "Production Order No"];
+
+export function parseInventoryFile(buffer: Buffer): ParseResult<InventoryRow> {
+  const { header, rows } = readSheet(buffer);
+  const colErrors = validateColumns(header, INVENTORY_REQUIRED);
+  if (colErrors.length) return { rows: [], errors: colErrors };
+
+  const result: InventoryRow[] = [];
+  const errors: string[] = [];
+
+  rows.forEach((r, i) => {
+    const rowNum = i + 2;
+    const itemId = String(col(r, "Item ID") ?? "").trim();
+    if (!itemId) { errors.push(`Row ${rowNum}: Item ID is empty`); return; }
+
+    result.push({
+      itemId,
+      ppoNumber: String(col(r, "PPO Number", "ppo") ?? "").trim(),
+      itemCode: String(col(r, "Item Code", "item_code") ?? "").trim(),
+      productionOrderNo: String(col(r, "Production Order No", "prod_order") ?? "").trim(),
+    });
+  });
+
+  return { rows: result, errors };
+}
+
 // ─── Sample builders ──────────────────────────────────────────────────────────
 
 function buildSample(headers: string[], examples: unknown[][]): Buffer {
@@ -221,9 +256,14 @@ export function buildPlannerSample(): Buffer {
     ["PPO Number", "Client Name", "Order Date", "RSD", "Item Code", "Description",
      "Production Order No", "Outstanding Qty",
      "Drawing Status", "Carpentry Status", "Painting Status", "Upholstery Status", "Packing Status"],
-    [["PPO-12345", "Client Name", "2026-01-01", "2026-06-30",
-     "CHR-001", "Dining Chair", "PO-001", 10,
-     "DONE", "IN_PROGRESS", "PENDING", "PENDING", "PENDING"]]
+    [
+      ["PPO-12345", "Client Name", "2026-01-01", "2026-06-30",
+       "CHR-001", "Dining Chair", "PO-001", 10,
+       "DONE", "IN_PROGRESS", "PENDING", "PENDING", "PENDING"],
+      ["PPO-12345", "Client Name", "2026-01-01", "2026-06-30",
+       "CHR-002", "Accent Chair", "Inventored", 5,
+       "", "", "", "", ""],
+    ]
   );
 }
 
@@ -241,5 +281,16 @@ export function buildMaterialSample(): Buffer {
       ["PPO-12345", "CHR-001", "MARBLE"],
       ["PPO-12345", "CHR-002", "N/A"],
     ]
+  );
+}
+
+export interface InventoryItem {
+  itemId: string; ppoNumber: string; itemCode: string; description: string; productionOrderNo: string;
+}
+
+export function buildInventorySample(items: InventoryItem[]): Buffer {
+  return buildSample(
+    ["Item ID", "PPO Number", "Item Code", "Description", "Production Order No"],
+    items.map(i => [i.itemId, i.ppoNumber, i.itemCode, i.description, i.productionOrderNo])
   );
 }

@@ -41,6 +41,9 @@ export async function POST(req: NextRequest) {
           changes.push(`${label}: ${item[f as keyof typeof item]} → ${newVal}`);
         }
       }
+      if (row.productionOrderNo !== undefined && row.productionOrderNo !== item.productionOrderNo) {
+        changes.push(`Production Order No: ${item.productionOrderNo || "(empty)"} → ${row.productionOrderNo}`);
+      }
     }
     return {
       ppoNumber: row.ppoNumber, itemCode: row.itemCode, description: row.description,

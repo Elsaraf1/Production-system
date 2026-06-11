@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Upload, Download, CheckCircle, AlertTriangle, Lock,
-  FileSpreadsheet, FileCheck2, ShoppingCart, PackageCheck, ArrowLeft,
+  FileSpreadsheet, FileCheck2, ShoppingCart, PackageCheck, ArrowLeft, Boxes,
 } from "lucide-react";
 
 // ─── Tab config ──────────────────────────────────────────────────────────────
@@ -19,7 +19,7 @@ const TABS = [
     icon: FileSpreadsheet,
     color: "blue",
     columns: ["PPO Number*", "Item Code*", "Client Name", "Order Date", "RSD", "Description", "Production Order No", "Outstanding Qty", "Drawing/Carpentry/Painting/Upholstery/Packing Status"],
-    effect: "Creates new orders/items and updates existing stage statuses.",
+    effect: "Creates new orders/items and updates existing stage statuses. Set Production Order No to \"Inventored\" to mark all 5 stages as Done.",
     roles: ["ADMIN", "PLANNER"],
     apiPath: "/api/import",
     confirmApiPath: "/api/import/confirm",
@@ -68,6 +68,20 @@ const TABS = [
     sampleType: "material-receive",
     isJson: false,
   },
+  {
+    id: "inventory-update",
+    label: "Inventory Update",
+    subtitle: "Mark Items as Inventored",
+    icon: Boxes,
+    color: "purple",
+    columns: ["Item ID*", "PPO Number", "Item Code", "Production Order No*"],
+    effect: "Download the sample file to get a live list of every item with its current Production Order No. Change a row's Production Order No to \"Inventored\" to mark all its stages as Done (stages already set to N/A are left as N/A). Don't edit or remove the Item ID column — it's used to match the row.",
+    roles: ["ADMIN", "PLANNER"],
+    apiPath: "/api/import/inventory-update",
+    confirmApiPath: "/api/import/inventory-update",
+    sampleType: "inventory-update",
+    isJson: false,
+  },
 ] as const;
 
 type TabId = typeof TABS[number]["id"];
@@ -77,6 +91,7 @@ const cardColors = {
   amber:  { bg: "bg-amber-50",  border: "border-amber-200",  icon: "text-amber-500",  ring: "ring-amber-400", badge: "bg-amber-100 text-amber-700" },
   orange: { bg: "bg-orange-50", border: "border-orange-200", icon: "text-orange-500", ring: "ring-orange-400",badge: "bg-orange-100 text-orange-700" },
   green:  { bg: "bg-green-50",  border: "border-green-200",  icon: "text-green-500",  ring: "ring-green-400", badge: "bg-green-100 text-green-700" },
+  purple: { bg: "bg-purple-50", border: "border-purple-200", icon: "text-purple-500", ring: "ring-purple-400", badge: "bg-purple-100 text-purple-700" },
 };
 
 // ─── Single import flow ───────────────────────────────────────────────────────
@@ -257,7 +272,7 @@ function ImportFlow({ tab, onBack }: { tab: typeof TABS[number]; onBack: () => v
                 <tr>
                   <th className="text-left px-3 py-2 font-medium">PPO</th>
                   <th className="text-left px-3 py-2 font-medium">Item Code</th>
-                  {tab.id !== "planner" && <th className="text-left px-3 py-2 font-medium">Material</th>}
+                  {tab.id !== "planner" && tab.id !== "inventory-update" && <th className="text-left px-3 py-2 font-medium">Material</th>}
                   <th className="text-left px-3 py-2 font-medium">Action</th>
                   <th className="text-left px-3 py-2 font-medium">Changes</th>
                 </tr>
@@ -267,7 +282,7 @@ function ImportFlow({ tab, onBack }: { tab: typeof TABS[number]; onBack: () => v
                   <tr key={i} className="hover:bg-gray-50">
                     <td className="px-3 py-1.5 font-mono">{item.ppoNumber as string}</td>
                     <td className="px-3 py-1.5 font-mono">{item.itemCode as string}</td>
-                    {tab.id !== "planner" && <td className="px-3 py-1.5">{(item.material as string) ?? "—"}</td>}
+                    {tab.id !== "planner" && tab.id !== "inventory-update" && <td className="px-3 py-1.5">{(item.material as string) ?? "—"}</td>}
                     <td className="px-3 py-1.5">
                       {item.isNewItem
                         ? <span className="text-xs font-medium text-green-600 bg-green-50 px-1.5 py-0.5 rounded">New</span>
