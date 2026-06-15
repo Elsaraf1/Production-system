@@ -36,7 +36,7 @@ export default async function OrdersPage({ searchParams }: Props) {
       </div>
 
       <div className="rounded-xl border bg-white overflow-x-auto lg:overflow-visible shadow-sm">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead>
             <tr className="bg-gray-50 border-b">
               <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">PPO Number</th>

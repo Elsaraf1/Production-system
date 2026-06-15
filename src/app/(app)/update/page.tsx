@@ -39,7 +39,7 @@ export default async function UpdatePage() {
       </div>
 
       <div className="rounded-lg border bg-white overflow-x-auto lg:overflow-visible">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead className="bg-gray-50 border-b">
             <tr>
               <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">PPO</th>
