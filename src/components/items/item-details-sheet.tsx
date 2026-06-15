@@ -124,7 +124,7 @@ export function ItemDetailsSheet({
     const pr = activePR(material);
     if (!pr) return;
     startTransition(async () => {
-      const newStatus = checked ? "RECEIVED" : "SUBMITTED";
+      const newStatus = checked ? "RECEIVED" : "ORDERED";
       const res = await fetch(`/api/items/${itemId}/prs/${pr.id}`, {
         method: "PATCH", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

@@ -81,3 +81,24 @@ export async function getAverageStageDurations(): Promise<DepartmentDuration[]> 
 
   return results;
 }
+
+/** Average planned lead time per order: RSD - Order Date, in days. */
+export async function getAverageOrderLeadTime(): Promise<DepartmentDuration> {
+  const orders = await prisma.salesOrder.findMany({ select: { orderDate: true, rsd: true } });
+
+  let sum = 0;
+  let count = 0;
+  for (const o of orders) {
+    const days = (o.rsd.getTime() - o.orderDate.getTime()) / 86400000;
+    if (days >= 0) {
+      sum += days;
+      count++;
+    }
+  }
+
+  return {
+    department: "Order Lead Time",
+    avgDays: count > 0 ? Math.round((sum / count) * 10) / 10 : null,
+    count,
+  };
+}

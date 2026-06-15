@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, AlertTriangle, Clock, CheckCircle } from "lucide-react";
 import { StageChart } from "./stage-chart";
 import { DepartmentTimeChart } from "./department-time-chart";
-import { getAverageStageDurations } from "@/lib/department-stats";
+import { getAverageStageDurations, getAverageOrderLeadTime } from "@/lib/department-stats";
 import { format } from "@/lib/date";
 import Link from "next/link";
 
@@ -38,7 +38,11 @@ export default async function DashboardPage() {
     )
   );
 
-  const departmentDurations = await getAverageStageDurations();
+  const [departmentDurations, orderLeadTime] = await Promise.all([
+    getAverageStageDurations(),
+    getAverageOrderLeadTime(),
+  ]);
+  const timeChartData = [orderLeadTime, ...departmentDurations];
 
   const chartData = [
     { name: "Drawing",    ...toMap(drawing,    "drawingStatus") },
@@ -110,9 +114,9 @@ export default async function DashboardPage() {
       <Card>
         <CardHeader><CardTitle className="text-base">Average Time per Department (days)</CardTitle></CardHeader>
         <CardContent>
-          <DepartmentTimeChart data={departmentDurations} />
+          <DepartmentTimeChart data={timeChartData} />
           <p className="text-xs text-muted-foreground mt-2">
-            Production stages: time from In Progress to Done. Procurement: time from material request to receipt.
+            Order Lead Time: RSD minus Order Date (planned production window). Production stages: time from In Progress to Done. Procurement: time from material request to receipt.
           </p>
         </CardContent>
       </Card>

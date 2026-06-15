@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 
 const schema = z.object({
-  status: z.enum(["DRAFT", "SUBMITTED", "APPROVED", "ORDERED", "RECEIVED", "CANCELLED"]),
+  status: z.enum(["ORDERED", "RECEIVED", "CANCELLED"]),
   receivedDate: z.string().nullable().optional(),
 });
 
@@ -32,7 +32,7 @@ export async function PATCH(
         // Auto-set receivedDate when marking as RECEIVED; clear it when un-receiving
         receivedDate: parsed.data.status === "RECEIVED"
           ? (parsed.data.receivedDate ? new Date(parsed.data.receivedDate) : new Date())
-          : parsed.data.status === "SUBMITTED"
+          : parsed.data.status === "ORDERED"
             ? null
             : undefined,
         version: { increment: 1 },

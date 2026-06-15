@@ -21,15 +21,8 @@ interface PRRow {
 }
 
 const statusStyle: Record<string, string> = {
-  DRAFT:      "bg-gray-100 text-gray-600",
-  SUBMITTED:  "bg-gray-100 text-gray-600", // same as DRAFT — no distinct meaning
-  APPROVED:   "bg-indigo-100 text-indigo-700",
   ORDERED:    "bg-orange-100 text-orange-700",
   RECEIVED:   "bg-green-100 text-green-700",
-};
-
-const statusLabel: Record<string, string> = {
-  SUBMITTED: "DRAFT", // show as DRAFT in the table
 };
 
 type SortKey = keyof PRRow;
@@ -47,12 +40,10 @@ const COLS: { key: SortKey; label: string; filterable?: boolean }[] = [
   { key: "itemCode",     label: "Item Code",     filterable: true },
   { key: "material",     label: "Material",      filterable: true },
   { key: "status",       label: "Status",        filterable: true },
-  { key: "requestedDate",label: "Requested" },
+  { key: "requestedDate",label: "Ordered Date" },
   { key: "receivedDate", label: "Receive Date" },
   { key: "createdBy",    label: "Created By",    filterable: true },
 ];
-
-const ALL_STATUSES = ["DRAFT", "SUBMITTED", "APPROVED", "ORDERED", "RECEIVED"] as const;
 
 export function ProcurementClient({ rows: initialRows, canEdit }: { rows: PRRow[]; canEdit: boolean }) {
   const [rows, setRows] = useState(initialRows);
@@ -63,9 +54,8 @@ export function ProcurementClient({ rows: initialRows, canEdit }: { rows: PRRow[
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [showColFilters, setShowColFilters] = useState(false);
 
-  // Only show DRAFT and RECEIVED as filter options — SUBMITTED has no distinct meaning for procurement
   const presentStatuses = useMemo(
-    () => [...new Set(rows.map(r => r.status))].filter(s => s !== "SUBMITTED"),
+    () => [...new Set(rows.map(r => r.status))],
     [rows]
   );
 

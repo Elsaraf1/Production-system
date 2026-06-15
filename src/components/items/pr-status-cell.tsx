@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { PRStatus } from "@/generated/prisma/client";
 
-const STATUSES: PRStatus[] = ["DRAFT", "SUBMITTED", "APPROVED", "ORDERED", "RECEIVED", "CANCELLED"];
+const STATUSES: PRStatus[] = ["ORDERED", "RECEIVED"];
 
 interface PRStatusCellProps {
   itemId: string;

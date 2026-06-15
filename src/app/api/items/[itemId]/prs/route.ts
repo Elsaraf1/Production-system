@@ -44,7 +44,7 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/items/[item
         unit: parsed.data.unit,
         requestedDate: parsed.data.requestedDate ? new Date(parsed.data.requestedDate) : null,
         createdById: session.user.id,
-        status: "DRAFT",
+        status: "ORDERED",
       },
       include: { createdBy: { select: { displayName: true } } },
     });
