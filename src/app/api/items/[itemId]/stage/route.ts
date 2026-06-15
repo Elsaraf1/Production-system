@@ -13,6 +13,8 @@ const stageMap: Record<string, { statusField: string; dateField: string; departm
   packing:    { statusField: "packingStatus",    dateField: "packingDate",    department: "PACKING" },
 };
 
+const STAGE_ORDER = ["drawing", "carpentry", "painting", "upholstery", "packing"] as const;
+
 const schema = z.object({
   stage: z.enum(["drawing", "carpentry", "painting", "upholstery", "packing"]),
   status: z.enum(["PENDING", "IN_PROGRESS", "DONE", "NA"]),
@@ -57,30 +59,53 @@ export async function PATCH(
 
   const oldStatus = current[stageConfig.statusField as keyof typeof current] as StageStatus;
 
+  const updateData: Record<string, unknown> = {
+    [stageConfig.statusField]: status,
+    [stageConfig.dateField]: date ? new Date(date) : null,
+    version: { increment: 1 },
+  };
+
+  const auditEntries: { fieldName: string; oldValue: StageStatus; newValue: StageStatus }[] = [
+    { fieldName: stageConfig.statusField, oldValue: oldStatus, newValue: status },
+  ];
+
+  // When a stage is marked Done, auto-start the next stage (skipping any N/A stages)
+  if (status === "DONE") {
+    const idx = STAGE_ORDER.indexOf(stage as (typeof STAGE_ORDER)[number]);
+    for (let i = idx + 1; i < STAGE_ORDER.length; i++) {
+      const nextConfig = stageMap[STAGE_ORDER[i]];
+      const nextStatus = current[nextConfig.statusField as keyof typeof current] as StageStatus;
+      if (nextStatus === "NA") continue;
+      if (nextStatus === "PENDING") {
+        updateData[nextConfig.statusField] = "IN_PROGRESS";
+        auditEntries.push({ fieldName: nextConfig.statusField, oldValue: nextStatus, newValue: "IN_PROGRESS" });
+      }
+      break;
+    }
+  }
+
   const updated = await prisma.$transaction(async (tx) => {
     const result = await tx.orderItem.updateMany({
       where: { id: itemId, version },
-      data: {
-        [stageConfig.statusField]: status,
-        [stageConfig.dateField]: date ? new Date(date) : null,
-        version: { increment: 1 },
-      },
+      data: updateData,
     });
 
     if (result.count === 0) {
       throw new Error("CONFLICT");
     }
 
-    await writeAuditLog(tx, {
-      userId: session.user.id,
-      entityType: "ORDER_ITEM",
-      entityId: itemId,
-      orderItemId: itemId,
-      action: "UPDATE",
-      fieldName: stageConfig.statusField,
-      oldValue: oldStatus,
-      newValue: status,
-    });
+    for (const entry of auditEntries) {
+      await writeAuditLog(tx, {
+        userId: session.user.id,
+        entityType: "ORDER_ITEM",
+        entityId: itemId,
+        orderItemId: itemId,
+        action: "UPDATE",
+        fieldName: entry.fieldName,
+        oldValue: entry.oldValue,
+        newValue: entry.newValue,
+      });
+    }
 
     return tx.orderItem.findUnique({ where: { id: itemId } });
   }).catch(async (err) => {

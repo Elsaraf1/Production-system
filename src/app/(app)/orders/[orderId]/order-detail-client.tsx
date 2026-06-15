@@ -41,9 +41,11 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
   const [items, setItems] = useState(order.items);
   const [selectedItem, setSelectedItem] = useState<ItemWithPRs | null>(null);
 
-  function handleStageUpdate(itemId: string, stage: string, newStatus: StageStatus, newVersion: number) {
+  function handleStageUpdate(itemId: string, stage: string, newStatus: StageStatus, newVersion: number, updatedItem?: Partial<OrderItem>) {
     setItems(prev => prev.map(item =>
-      item.id === itemId ? { ...item, [`${stage}Status`]: newStatus, version: newVersion } : item
+      item.id === itemId
+        ? { ...item, ...(updatedItem ?? { [`${stage}Status`]: newStatus, version: newVersion }) }
+        : item
     ));
   }
 
@@ -111,8 +113,8 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
                           status={item[statusKey] as StageStatus}
                           version={item.version}
                           canEdit={canEditStage(role, department, s.dept)}
-                          onUpdate={(newStatus, newVersion) =>
-                            handleStageUpdate(item.id, s.key, newStatus, newVersion)
+                          onUpdate={(newStatus, newVersion, updatedItem) =>
+                            handleStageUpdate(item.id, s.key, newStatus, newVersion, updatedItem)
                           }
                         />
                       </td>

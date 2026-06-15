@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { StageStatusBadge } from "./stage-status-badge";
 import {
   DropdownMenu,
@@ -18,7 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { StageStatus } from "@/generated/prisma/client";
+import type { StageStatus, OrderItem } from "@/generated/prisma/client";
 
 const STATUSES: StageStatus[] = ["PENDING", "IN_PROGRESS", "DONE", "NA"];
 
@@ -28,7 +28,7 @@ interface StageCellProps {
   status: StageStatus;
   version: number;
   canEdit: boolean;
-  onUpdate?: (newStatus: StageStatus, newVersion: number) => void;
+  onUpdate?: (newStatus: StageStatus, newVersion: number, updatedItem?: Partial<OrderItem>) => void;
 }
 
 export function StageCell({ itemId, stage, status, version, canEdit, onUpdate }: StageCellProps) {
@@ -36,6 +36,13 @@ export function StageCell({ itemId, stage, status, version, canEdit, onUpdate }:
   const [currentVersion, setCurrentVersion] = useState(version);
   const [conflict, setConflict] = useState<{ serverStatus: StageStatus; serverVersion: number } | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Keep in sync with the parent's data — needed when a sibling stage cell's
+  // update cascades a status change to this stage.
+  useEffect(() => {
+    setCurrent(status);
+    setCurrentVersion(version);
+  }, [status, version]);
 
   async function updateStage(newStatus: StageStatus) {
     startTransition(async () => {
@@ -49,7 +56,7 @@ export function StageCell({ itemId, stage, status, version, canEdit, onUpdate }:
         const updated = await res.json();
         setCurrent(newStatus);
         setCurrentVersion(updated.version);
-        onUpdate?.(newStatus, updated.version);
+        onUpdate?.(newStatus, updated.version, updated);
       } else if (res.status === 409) {
         const data = await res.json();
         const serverStatus = data.current[`${stage}Status`] as StageStatus;
