@@ -128,7 +128,7 @@ export function Sidebar({ role, displayName }: SidebarProps) {
       </Sheet>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex flex-col w-60 min-h-screen bg-gray-900 text-gray-100">
+      <aside className="hidden lg:flex flex-col w-60 h-screen sticky top-0 bg-gray-900 text-gray-100 shrink-0">
         {navContent}
       </aside>
     </>

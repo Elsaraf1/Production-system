@@ -133,10 +133,10 @@ export function ProcurementClient({ rows: initialRows, canEdit }: { rows: PRRow[
         </div>
       </div>
 
-      <div className="rounded-xl border bg-white overflow-x-auto shadow-sm">
+      <div className="rounded-xl border bg-white shadow-sm overflow-x-auto lg:overflow-visible">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 border-b">
+            <tr className="bg-gray-50 border-b lg:sticky lg:top-0 lg:z-10">
               {COLS.map(col => (
                 <th
                   key={col.key}
