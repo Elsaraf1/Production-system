@@ -136,11 +136,11 @@ export function ProcurementClient({ rows: initialRows, canEdit }: { rows: PRRow[
       <div className="rounded-xl border bg-white shadow-sm overflow-x-auto lg:overflow-visible">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 border-b lg:sticky lg:top-0 lg:z-10">
+            <tr className="bg-gray-50 border-b">
               {COLS.map(col => (
                 <th
                   key={col.key}
-                  className="text-left px-4 py-3 font-semibold text-gray-600 cursor-pointer select-none whitespace-nowrap hover:bg-gray-100 transition-colors"
+                  className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-semibold text-gray-600 cursor-pointer select-none whitespace-nowrap hover:bg-gray-100 transition-colors"
                   onClick={() => handleSort(col.key)}
                 >
                   {col.label}

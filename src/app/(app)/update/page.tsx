@@ -38,19 +38,19 @@ export default async function UpdatePage() {
         </p>
       </div>
 
-      <div className="rounded-lg border bg-white overflow-x-auto">
+      <div className="rounded-lg border bg-white overflow-x-auto lg:overflow-visible">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="text-left px-4 py-3 font-medium">PPO</th>
-              <th className="text-left px-4 py-3 font-medium">Item</th>
-              <th className="text-left px-4 py-3 font-medium">Description</th>
-              <th className="text-left px-4 py-3 font-medium">RSD</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">PPO</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Item</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Description</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">RSD</th>
               {stageConfig ? (
-                <th className="text-left px-4 py-3 font-medium">{stageConfig.label}</th>
+                <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">{stageConfig.label}</th>
               ) : (
                 ["Drawing","Carpentry","Painting","Upholstery","Packing"].map(s => (
-                  <th key={s} className="text-left px-4 py-3 font-medium">{s}</th>
+                  <th key={s} className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">{s}</th>
                 ))
               )}
             </tr>

@@ -35,16 +35,16 @@ export default async function OrdersPage({ searchParams }: Props) {
         </form>
       </div>
 
-      <div className="rounded-xl border bg-white overflow-x-auto shadow-sm">
+      <div className="rounded-xl border bg-white overflow-x-auto lg:overflow-visible shadow-sm">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b">
-              <th className="text-left px-5 py-3 font-semibold text-gray-600">PPO Number</th>
-              <th className="text-left px-5 py-3 font-semibold text-gray-600">Client</th>
-              <th className="text-left px-5 py-3 font-semibold text-gray-600">Order Date</th>
-              <th className="text-left px-5 py-3 font-semibold text-gray-600">RSD</th>
-              <th className="text-left px-5 py-3 font-semibold text-gray-600">Items</th>
-              <th className="text-left px-5 py-3 font-semibold text-gray-600">Status</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">PPO Number</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Client</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Order Date</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">RSD</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Items</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y">

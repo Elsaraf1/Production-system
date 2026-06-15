@@ -198,20 +198,20 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
         />
       </div>
 
-      <div className="rounded-lg border bg-white overflow-x-auto">
+      <div className="rounded-lg border bg-white overflow-x-auto lg:overflow-visible">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="w-8 px-3 py-2.5" />
-              <th className="text-left px-3 py-2.5 font-medium">Item Code</th>
-              <th className="text-left px-3 py-2.5 font-medium">Prod. Order</th>
-              <th className="text-left px-3 py-2.5 font-medium">Description</th>
-              <th className="text-left px-3 py-2.5 font-medium">Qty</th>
-              {STAGES.map(s => <th key={s.key} className="text-left px-3 py-2.5 font-medium">{s.label}</th>)}
-              <th className="text-left px-3 py-2.5 font-medium">Delay</th>
-              <th className="px-2 py-2.5 text-center" title="Required"><ShoppingCart className="h-3.5 w-3.5 text-amber-500 mx-auto" /></th>
-              <th className="px-2 py-2.5 text-center" title="Arrived"><PackageCheck className="h-3.5 w-3.5 text-green-500 mx-auto" /></th>
-              <th className="px-3 py-2.5 w-20" />
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 w-8 px-3 py-2.5" />
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">Item Code</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">Prod. Order</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">Description</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">Qty</th>
+              {STAGES.map(s => <th key={s.key} className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">{s.label}</th>)}
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">Delay</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 px-2 py-2.5 text-center" title="Required"><ShoppingCart className="h-3.5 w-3.5 text-amber-500 mx-auto" /></th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 px-2 py-2.5 text-center" title="Arrived"><PackageCheck className="h-3.5 w-3.5 text-green-500 mx-auto" /></th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 px-3 py-2.5 w-20" />
             </tr>
           </thead>
           <tbody>

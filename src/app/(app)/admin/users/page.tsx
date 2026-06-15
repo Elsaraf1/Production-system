@@ -12,16 +12,16 @@ export default async function UsersPage() {
     <div className="space-y-6 max-w-4xl">
       <h1 className="text-2xl font-semibold">User Management</h1>
       <CreateUserForm />
-      <div className="rounded-lg border bg-white overflow-x-auto">
+      <div className="rounded-lg border bg-white overflow-x-auto lg:overflow-visible">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="text-left px-4 py-3 font-medium">Username</th>
-              <th className="text-left px-4 py-3 font-medium">Display Name</th>
-              <th className="text-left px-4 py-3 font-medium">Role</th>
-              <th className="text-left px-4 py-3 font-medium">Department</th>
-              <th className="text-left px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 w-12" />
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Username</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Display Name</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Role</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Department</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Status</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 px-4 py-3 w-12" />
             </tr>
           </thead>
           <tbody className="divide-y">

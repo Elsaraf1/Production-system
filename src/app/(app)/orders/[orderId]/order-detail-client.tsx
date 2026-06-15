@@ -68,26 +68,26 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
         <p className="text-muted-foreground">{order.clientName} · RSD: {format(order.rsd)}</p>
       </div>
 
-      <div className="rounded-lg border bg-white overflow-x-auto">
+      <div className="rounded-lg border bg-white overflow-x-auto lg:overflow-visible">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="text-left px-4 py-3 font-medium">Item</th>
-              <th className="text-left px-4 py-3 font-medium">Prod. Order No</th>
-              <th className="text-left px-4 py-3 font-medium">Description</th>
-              <th className="text-left px-4 py-3 font-medium">Qty</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Item</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Prod. Order No</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Description</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Qty</th>
               {STAGES.map(s => (
-                <th key={s.key} className="text-left px-4 py-3 font-medium">{s.label}</th>
+                <th key={s.key} className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">{s.label}</th>
               ))}
-              <th className="text-left px-4 py-3 font-medium">Delay</th>
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Delay</th>
               {/* PR summary columns */}
-              <th className="px-3 py-3" title="Materials requested by Technical">
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 px-3 py-3" title="Materials requested by Technical">
                 <ShoppingCart className="h-3.5 w-3.5 text-amber-500 mx-auto" />
               </th>
-              <th className="px-3 py-3" title="Materials arrived (Procurement)">
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 px-3 py-3" title="Materials arrived (Procurement)">
                 <PackageCheck className="h-3.5 w-3.5 text-green-500 mx-auto" />
               </th>
-              <th className="px-4 py-3 w-10" />
+              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 px-4 py-3 w-10" />
             </tr>
           </thead>
           <tbody className="divide-y">
