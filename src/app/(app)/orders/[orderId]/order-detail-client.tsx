@@ -68,7 +68,7 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
         <p className="text-muted-foreground">{order.clientName} · RSD: {format(order.rsd)}</p>
       </div>
 
-      <div className="rounded-lg border bg-white overflow-x-auto lg:overflow-visible">
+      <div className="rounded-lg border bg-white overflow-x-auto lg:overflow-visible lg:isolate">
         <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead className="bg-gray-50 border-b">
             <tr>

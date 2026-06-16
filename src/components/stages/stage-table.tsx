@@ -139,7 +139,7 @@ export function StageTable({ rows: initialRows, stageLabel, stageKey, canEdit }:
         </div>
       </div>
 
-      <div className="rounded-xl border bg-white shadow-sm overflow-x-auto lg:overflow-visible">
+      <div className="rounded-xl border bg-white shadow-sm overflow-x-auto lg:overflow-visible lg:isolate">
         <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead>
             <tr className="bg-gray-50 border-b">

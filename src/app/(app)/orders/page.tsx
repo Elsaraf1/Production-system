@@ -35,7 +35,7 @@ export default async function OrdersPage({ searchParams }: Props) {
         </form>
       </div>
 
-      <div className="rounded-xl border bg-white overflow-x-auto lg:overflow-visible shadow-sm">
+      <div className="rounded-xl border bg-white overflow-x-auto lg:overflow-visible shadow-sm lg:isolate">
         <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead>
             <tr className="bg-gray-50 border-b">

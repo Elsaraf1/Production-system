@@ -14,7 +14,7 @@ export default async function UsersPage() {
         <h1 className="text-2xl font-semibold">User Management</h1>
       </div>
       <CreateUserForm />
-      <div className="rounded-lg border bg-white overflow-x-auto lg:overflow-visible">
+      <div className="rounded-lg border bg-white overflow-x-auto lg:overflow-visible lg:isolate">
         <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead className="bg-gray-50 border-b">
             <tr>
