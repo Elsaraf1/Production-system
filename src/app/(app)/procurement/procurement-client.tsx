@@ -108,7 +108,7 @@ export function ProcurementClient({ rows: initialRows, canEdit }: { rows: PRRow[
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 lg:sticky lg:top-0 lg:z-20 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:pb-4 lg:border-b lg:border-gray-200">
         <div>
           <h1 className="text-2xl font-semibold">Purchase Requisitions</h1>
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-muted-foreground">
@@ -140,7 +140,7 @@ export function ProcurementClient({ rows: initialRows, canEdit }: { rows: PRRow[
               {COLS.map(col => (
                 <th
                   key={col.key}
-                  className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-semibold text-gray-600 cursor-pointer select-none whitespace-nowrap hover:bg-gray-100 transition-colors"
+                  className="bg-gray-50 text-left px-4 py-3 font-semibold text-gray-600 cursor-pointer select-none whitespace-nowrap hover:bg-gray-100 transition-colors"
                   onClick={() => handleSort(col.key)}
                 >
                   {col.label}

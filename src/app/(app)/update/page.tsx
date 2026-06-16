@@ -31,7 +31,7 @@ export default async function UpdatePage() {
 
   return (
     <div className="space-y-4">
-      <div>
+      <div className="lg:sticky lg:top-0 lg:z-20 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:pb-3 lg:border-b lg:border-gray-200">
         <h1 className="text-2xl font-semibold">Update</h1>
         <p className="text-muted-foreground text-sm">
           {stageConfig ? `Showing pending/in-progress items for ${stageConfig.label}` : "All pending/in-progress items"}
@@ -42,15 +42,15 @@ export default async function UpdatePage() {
         <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">PPO</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Item</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Description</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">RSD</th>
+              <th className="bg-gray-50text-left px-4 py-3 font-medium">PPO</th>
+              <th className="bg-gray-50text-left px-4 py-3 font-medium">Item</th>
+              <th className="bg-gray-50text-left px-4 py-3 font-medium">Description</th>
+              <th className="bg-gray-50text-left px-4 py-3 font-medium">RSD</th>
               {stageConfig ? (
-                <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">{stageConfig.label}</th>
+                <th className="bg-gray-50text-left px-4 py-3 font-medium">{stageConfig.label}</th>
               ) : (
                 ["Drawing","Carpentry","Painting","Upholstery","Packing"].map(s => (
-                  <th key={s} className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">{s}</th>
+                  <th key={s} className="bg-gray-50text-left px-4 py-3 font-medium">{s}</th>
                 ))
               )}
             </tr>

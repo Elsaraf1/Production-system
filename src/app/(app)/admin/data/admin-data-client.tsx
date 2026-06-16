@@ -185,7 +185,7 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:sticky lg:top-0 lg:z-20 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:pb-4 lg:border-b lg:border-gray-200">
         <div>
           <h1 className="text-2xl font-semibold">Data Management</h1>
           <p className="text-sm text-muted-foreground">{filtered.length} orders · {totalItems} items</p>
@@ -202,16 +202,16 @@ export function AdminDataClient({ orders: initial }: { orders: OrderWithItems[] 
         <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 w-8 px-3 py-2.5" />
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">Item Code</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">Prod. Order</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">Description</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">Qty</th>
-              {STAGES.map(s => <th key={s.key} className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">{s.label}</th>)}
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-3 py-2.5 font-medium">Delay</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 px-2 py-2.5 text-center" title="Required"><ShoppingCart className="h-3.5 w-3.5 text-amber-500 mx-auto" /></th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 px-2 py-2.5 text-center" title="Arrived"><PackageCheck className="h-3.5 w-3.5 text-green-500 mx-auto" /></th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 px-3 py-2.5 w-20" />
+              <th className="bg-gray-50w-8 px-3 py-2.5" />
+              <th className="bg-gray-50text-left px-3 py-2.5 font-medium">Item Code</th>
+              <th className="bg-gray-50text-left px-3 py-2.5 font-medium">Prod. Order</th>
+              <th className="bg-gray-50text-left px-3 py-2.5 font-medium">Description</th>
+              <th className="bg-gray-50text-left px-3 py-2.5 font-medium">Qty</th>
+              {STAGES.map(s => <th key={s.key} className="bg-gray-50text-left px-3 py-2.5 font-medium">{s.label}</th>)}
+              <th className="bg-gray-50text-left px-3 py-2.5 font-medium">Delay</th>
+              <th className="bg-gray-50px-2 py-2.5 text-center" title="Required"><ShoppingCart className="h-3.5 w-3.5 text-amber-500 mx-auto" /></th>
+              <th className="bg-gray-50px-2 py-2.5 text-center" title="Arrived"><PackageCheck className="h-3.5 w-3.5 text-green-500 mx-auto" /></th>
+              <th className="bg-gray-50px-3 py-2.5 w-20" />
             </tr>
           </thead>
           <tbody>

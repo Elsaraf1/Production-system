@@ -10,18 +10,20 @@ export default async function UsersPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <h1 className="text-2xl font-semibold">User Management</h1>
+      <div className="lg:sticky lg:top-0 lg:z-20 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:pb-3 lg:border-b lg:border-gray-200">
+        <h1 className="text-2xl font-semibold">User Management</h1>
+      </div>
       <CreateUserForm />
       <div className="rounded-lg border bg-white overflow-x-auto lg:overflow-visible">
         <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Username</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Display Name</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Role</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Department</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 text-left px-4 py-3 font-medium">Status</th>
-              <th className="lg:sticky lg:top-0 lg:z-10 bg-gray-50 px-4 py-3 w-12" />
+              <th className="bg-gray-50text-left px-4 py-3 font-medium">Username</th>
+              <th className="bg-gray-50text-left px-4 py-3 font-medium">Display Name</th>
+              <th className="bg-gray-50text-left px-4 py-3 font-medium">Role</th>
+              <th className="bg-gray-50text-left px-4 py-3 font-medium">Department</th>
+              <th className="bg-gray-50text-left px-4 py-3 font-medium">Status</th>
+              <th className="bg-gray-50px-4 py-3 w-12" />
             </tr>
           </thead>
           <tbody className="divide-y">
