@@ -1,14 +1,16 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { format } from "@/lib/date";
+import { CreateOrderDialog } from "./create-order-dialog";
 
 interface Props {
   searchParams: Promise<{ q?: string }>;
 }
 
 export default async function OrdersPage({ searchParams }: Props) {
-  const { q } = await searchParams;
+  const [session, { q }] = await Promise.all([auth(), searchParams]);
 
   const orders = await prisma.salesOrder.findMany({
     where: q
@@ -30,9 +32,12 @@ export default async function OrdersPage({ searchParams }: Props) {
           <h1 className="text-2xl font-semibold">Sales Orders</h1>
           <p className="text-muted-foreground text-sm mt-0.5">{orders.length} order{orders.length !== 1 ? "s" : ""}</p>
         </div>
-        <form method="get" className="w-full sm:w-64">
-          <Input name="q" defaultValue={q} placeholder="Search PPO or client…" className="h-9" />
-        </form>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <form method="get" className="w-full sm:w-64">
+            <Input name="q" defaultValue={q} placeholder="Search PPO or client…" className="h-9" />
+          </form>
+          {session?.user.role === "ADMIN" && <CreateOrderDialog />}
+        </div>
       </div>
 
       <div className="rounded-xl border bg-white overflow-x-auto lg:overflow-visible shadow-sm lg:isolate">
