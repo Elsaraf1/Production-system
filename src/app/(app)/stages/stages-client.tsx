@@ -13,7 +13,7 @@ export function StagesClient({ data, defaultStage, canEdit }: { data: Record<Sta
       </div>
 
       <Tabs defaultValue={defaultStage}>
-        <div className="lg:sticky lg:top-0 lg:z-20 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:py-2 lg:border-b lg:border-gray-200">
+        <div className="lg:sticky lg:top-0 lg:z-20 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:h-[56px] lg:flex lg:items-center lg:border-b lg:border-gray-200">
           <TabsList>
             {STAGES.map(s => (
               <TabsTrigger key={s.key} value={s.key} className="px-3">{s.label}</TabsTrigger>

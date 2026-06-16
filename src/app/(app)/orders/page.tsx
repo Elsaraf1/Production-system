@@ -25,7 +25,7 @@ export default async function OrdersPage({ searchParams }: Props) {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:sticky lg:top-0 lg:z-20 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:pb-4 lg:border-b lg:border-gray-200">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:sticky lg:top-0 lg:z-20 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:h-[68px] lg:border-b lg:border-gray-200">
         <div>
           <h1 className="text-2xl font-semibold">Sales Orders</h1>
           <p className="text-muted-foreground text-sm mt-0.5">{orders.length} order{orders.length !== 1 ? "s" : ""}</p>
@@ -39,12 +39,12 @@ export default async function OrdersPage({ searchParams }: Props) {
         <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead>
             <tr className="bg-gray-50 border-b">
-              <th className="bg-gray-50text-left px-5 py-3 font-semibold text-gray-600">PPO Number</th>
-              <th className="bg-gray-50text-left px-5 py-3 font-semibold text-gray-600">Client</th>
-              <th className="bg-gray-50text-left px-5 py-3 font-semibold text-gray-600">Order Date</th>
-              <th className="bg-gray-50text-left px-5 py-3 font-semibold text-gray-600">RSD</th>
-              <th className="bg-gray-50text-left px-5 py-3 font-semibold text-gray-600">Items</th>
-              <th className="bg-gray-50text-left px-5 py-3 font-semibold text-gray-600">Status</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">PPO Number</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Client</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Order Date</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">RSD</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Items</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y">

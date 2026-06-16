@@ -63,7 +63,7 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="lg:sticky lg:top-0 lg:z-20 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:pb-4 lg:pt-1 lg:border-b lg:border-gray-200">
+      <div className="lg:sticky lg:top-0 lg:z-20 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:h-[68px] lg:flex lg:flex-col lg:justify-center lg:border-b lg:border-gray-200">
         <h1 className="text-2xl font-semibold">{order.ppoNumber}</h1>
         <p className="text-muted-foreground">{order.clientName} · RSD: {format(order.rsd)}</p>
       </div>
@@ -72,22 +72,22 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
         <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="bg-gray-50text-left px-4 py-3 font-medium">Item</th>
-              <th className="bg-gray-50text-left px-4 py-3 font-medium">Prod. Order No</th>
-              <th className="bg-gray-50text-left px-4 py-3 font-medium">Description</th>
-              <th className="bg-gray-50text-left px-4 py-3 font-medium">Qty</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Item</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Prod. Order No</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Description</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Qty</th>
               {STAGES.map(s => (
-                <th key={s.key} className="bg-gray-50text-left px-4 py-3 font-medium">{s.label}</th>
+                <th key={s.key} className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">{s.label}</th>
               ))}
-              <th className="bg-gray-50text-left px-4 py-3 font-medium">Delay</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Delay</th>
               {/* PR summary columns */}
-              <th className="bg-gray-50px-3 py-3" title="Materials requested by Technical">
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 px-3 py-3" title="Materials requested by Technical">
                 <ShoppingCart className="h-3.5 w-3.5 text-amber-500 mx-auto" />
               </th>
-              <th className="bg-gray-50px-3 py-3" title="Materials arrived (Procurement)">
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 px-3 py-3" title="Materials arrived (Procurement)">
                 <PackageCheck className="h-3.5 w-3.5 text-green-500 mx-auto" />
               </th>
-              <th className="bg-gray-50px-4 py-3 w-10" />
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 px-4 py-3 w-10" />
             </tr>
           </thead>
           <tbody className="divide-y">
