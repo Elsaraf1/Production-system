@@ -44,10 +44,8 @@ export function CreateOrderDialog() {
 
   return (
     <Dialog open={open} onOpenChange={v => { setOpen(v); if (!v) reset(); }}>
-      <DialogTrigger asChild>
-        <Button size="sm" className="shrink-0">
-          <Plus className="h-4 w-4 mr-1.5" /> New Order
-        </Button>
+      <DialogTrigger render={<Button size="sm" className="shrink-0" />}>
+        <Plus className="h-4 w-4 mr-1.5" /> New Order
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
