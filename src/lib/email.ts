@@ -9,7 +9,8 @@ async function send(to: string[], subject: string, html: string): Promise<void> 
   const resend = new Resend(process.env.RESEND_API_KEY);
   const ccRows = await prisma.ccEmail.findMany({ select: { email: true } });
   const cc = ccRows.map(r => r.email).filter(e => !to.includes(e));
-  await resend.emails.send({ from: FROM, to, subject, html, ...(cc.length ? { cc } : {}) });
+  const { error } = await resend.emails.send({ from: FROM, to, subject, html, ...(cc.length ? { cc } : {}) });
+  if (error) throw new Error(`Resend error: ${error.message}`);
 }
 
 function wrap(title: string, body: string): string {
