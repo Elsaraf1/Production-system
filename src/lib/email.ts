@@ -5,12 +5,33 @@ const FROM = process.env.RESEND_FROM ?? "Production Dashboard <onboarding@resend
 const BASE_URL = process.env.NEXTAUTH_URL ?? "https://production-system-pi.vercel.app";
 
 async function send(to: string[], subject: string, html: string): Promise<void> {
-  if (!to.length || !process.env.RESEND_API_KEY) return;
+  if (!process.env.RESEND_API_KEY) return;
   const resend = new Resend(process.env.RESEND_API_KEY);
   const ccRows = await prisma.ccEmail.findMany({ select: { email: true } });
-  const cc = ccRows.map(r => r.email).filter(e => !to.includes(e));
-  const { error } = await resend.emails.send({ from: FROM, to, subject, html, ...(cc.length ? { cc } : {}) });
-  if (error) throw new Error(`Resend error: ${error.message}`);
+  const ccEmails = ccRows.map(r => r.email);
+
+  // Send to primary role-based recipients (may fail on free tier / unverified domain)
+  if (to.length) {
+    const filteredCc = ccEmails.filter(e => !to.includes(e));
+    const { error } = await resend.emails.send({
+      from: FROM, to, subject, html,
+      ...(filteredCc.length ? { cc: filteredCc } : {}),
+    });
+    if (error) {
+      // Log but don't throw — fall through so CC-only send still runs
+      console.error(`[email] primary send failed (${to.join(", ")}): ${error.message}`);
+    } else {
+      return; // success — CC was already included above
+    }
+  }
+
+  // Always send separately to CC addresses not already in TO
+  // Ensures CC subscribers receive notifications even when primary send fails
+  const ccOnly = ccEmails.filter(e => !to.includes(e));
+  if (ccOnly.length) {
+    const { error } = await resend.emails.send({ from: FROM, to: ccOnly, subject, html });
+    if (error) throw new Error(`Resend error (cc-only): ${error.message}`);
+  }
 }
 
 function wrap(title: string, body: string): string {
