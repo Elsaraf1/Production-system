@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { writeAuditLog } from "@/lib/audit";
+import { notifyOrderCreated } from "@/lib/email";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 
@@ -37,6 +38,14 @@ export async function POST(req: NextRequest) {
     });
     return o;
   });
+
+  try {
+    const recipients = await prisma.user.findMany({
+      where: { role: "TECHNICAL", isActive: true, email: { not: null } },
+      select: { email: true },
+    });
+    await notifyOrderCreated(order, recipients.map(u => u.email!));
+  } catch (err) { console.error("[email] notifyOrderCreated:", err); }
 
   return Response.json(order, { status: 201 });
 }

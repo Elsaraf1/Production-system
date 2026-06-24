@@ -83,6 +83,7 @@ model User {
   displayName  String
   role         Role
   department   Department?
+  email        String?
   isActive     Boolean     @default(true)
   createdAt    DateTime    @default(now())
 

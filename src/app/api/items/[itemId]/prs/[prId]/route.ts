@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { writeAuditLog } from "@/lib/audit";
+import { notifyMaterialReceived } from "@/lib/email";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 
@@ -45,5 +46,19 @@ export async function PATCH(
     });
     return result;
   });
+  if (parsed.data.status === "RECEIVED" && current.status !== "RECEIVED") {
+    try {
+      const [recipients, item] = await Promise.all([
+        prisma.user.findMany({ where: { role: "TECHNICAL", isActive: true, email: { not: null } }, select: { email: true } }),
+        prisma.orderItem.findUnique({ where: { id: itemId }, include: { salesOrder: { select: { ppoNumber: true } } } }),
+      ]);
+      if (item) await notifyMaterialReceived(
+        { itemCode: item.itemCode, ppoNumber: item.salesOrder.ppoNumber },
+        current.material,
+        recipients.map(u => u.email!)
+      );
+    } catch (err) { console.error("[email] notifyMaterialReceived:", err); }
+  }
+
   return Response.json(updated);
 }

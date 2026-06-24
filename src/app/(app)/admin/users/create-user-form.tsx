@@ -19,7 +19,7 @@ export function CreateUserForm() {
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
   const [form, setForm] = useState({
-    username: "", password: "", displayName: "", role: "PRODUCTION", department: "",
+    username: "", password: "", displayName: "", role: "PRODUCTION", department: "", email: "",
   });
 
   const needsDept = DEPT_ROLES.includes(form.role);
@@ -34,7 +34,7 @@ export function CreateUserForm() {
         body: JSON.stringify({ ...form, department: needsDept ? form.department || null : null }),
       });
       if (res.ok) {
-        setForm({ username: "", password: "", displayName: "", role: "PRODUCTION", department: "" });
+        setForm({ username: "", password: "", displayName: "", role: "PRODUCTION", department: "", email: "" });
         setOpen(false);
         router.refresh();
       } else {
@@ -68,6 +68,10 @@ export function CreateUserForm() {
           <div className="space-y-1">
             <Label>Display Name</Label>
             <Input value={form.displayName} onChange={e => setForm(f => ({ ...f, displayName: e.target.value }))} required placeholder="Full name" />
+          </div>
+          <div className="space-y-1">
+            <Label>Email <span className="text-muted-foreground font-normal text-xs">(for notifications)</span></Label>
+            <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="user@company.com" />
           </div>
           <div className="space-y-1">
             <Label>Role</Label>

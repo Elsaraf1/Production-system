@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { writeAuditLog } from "@/lib/audit";
+import { notifyStageDone, NEXT_STAGE_NOTIFY } from "@/lib/email";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import type { Department, StageStatus } from "@/generated/prisma/client";
@@ -118,6 +119,26 @@ export async function PATCH(
   if (!updated) {
     const fresh = await prisma.orderItem.findUnique({ where: { id: itemId } });
     return Response.json({ conflict: true, current: fresh }, { status: 409 });
+  }
+
+  if (status === "DONE") {
+    const next = NEXT_STAGE_NOTIFY[stage];
+    if (next) {
+      try {
+        const [deptUsers, plannerUsers, item] = await Promise.all([
+          prisma.user.findMany({ where: { role: "PRODUCTION", department: next.department as Department, isActive: true, email: { not: null } }, select: { email: true } }),
+          prisma.user.findMany({ where: { role: "PLANNER", isActive: true, email: { not: null } }, select: { email: true } }),
+          prisma.orderItem.findUnique({ where: { id: itemId }, include: { salesOrder: { select: { ppoNumber: true } } } }),
+        ]);
+        const emails = [...new Set([...deptUsers, ...plannerUsers].map(u => u.email!))];
+        if (item) await notifyStageDone(
+          { itemCode: item.itemCode, ppoNumber: item.salesOrder.ppoNumber },
+          stage,
+          next.stage,
+          emails
+        );
+      } catch (err) { console.error("[email] notifyStageDone:", err); }
+    }
   }
 
   return Response.json(updated);

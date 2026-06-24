@@ -11,6 +11,7 @@ const createSchema = z.object({
   displayName: z.string().min(1).max(100),
   role: z.enum(["ADMIN", "PRODUCTION", "PLANNER", "TECHNICAL", "PROCUREMENT", "SALES"]),
   department: z.enum(["DRAWING", "CARPENTRY", "PAINTING", "UPHOLSTERY", "PACKING", "PR_CREATION"]).nullable().optional(),
+  email: z.string().email().optional().or(z.literal("")),
 });
 
 export async function POST(req: NextRequest) {
@@ -33,6 +34,7 @@ export async function POST(req: NextRequest) {
         displayName: parsed.data.displayName,
         role: parsed.data.role,
         department: parsed.data.department ?? null,
+        email: parsed.data.email || null,
         isActive: true,
       },
     });

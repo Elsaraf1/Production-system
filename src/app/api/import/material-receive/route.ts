@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseMaterialFile } from "@/lib/excel";
+import { notifyBulkMaterialReceived } from "@/lib/email";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -81,6 +82,13 @@ export async function POST(req: NextRequest) {
       });
     }
   }, { timeout: 30000 });
+
+  if (toUpdate.length > 0) {
+    try {
+      const recipients = await prisma.user.findMany({ where: { role: "TECHNICAL", isActive: true, email: { not: null } }, select: { email: true } });
+      await notifyBulkMaterialReceived(toUpdate.length, recipients.map(u => u.email!));
+    } catch (err) { console.error("[email] notifyBulkMaterialReceived:", err); }
+  }
 
   return Response.json({ updated: toUpdate.length, skipped: alreadyReceived, notFound: notFound.length });
   } catch (err) {
