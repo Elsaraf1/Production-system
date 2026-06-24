@@ -168,6 +168,13 @@ model Note {
   deletedBy   User?     @relation("NoteDeleter", fields: [deletedById], references: [id])
 }
 
+model CcEmail {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  label     String?
+  createdAt DateTime @default(now())
+}
+
 model AuditLog {
   id          String      @id @default(cuid())
   userId      String

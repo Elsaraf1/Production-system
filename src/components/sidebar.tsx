@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   LayoutDashboard, ClipboardList, RefreshCw, ShoppingCart,
-  Upload, Users, ScrollText, Database, LogOut, Layers, Menu,
+  Upload, Users, ScrollText, Database, LogOut, Layers, Menu, Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -20,8 +20,9 @@ const navItems = [
   { href: "/procurement",  label: "Procurement", icon: ShoppingCart,    roles: ["ADMIN","TECHNICAL","PROCUREMENT"] },
   { href: "/import",       label: "Import",      icon: Upload,          roles: ["ADMIN","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT"] },
   { href: "/admin/data",   label: "Data",        icon: Database,        roles: ["ADMIN"] },
-  { href: "/admin/users",  label: "Users",       icon: Users,           roles: ["ADMIN"] },
-  { href: "/admin/audit",  label: "Audit Log",   icon: ScrollText,      roles: ["ADMIN"] },
+  { href: "/admin/users",         label: "Users",          icon: Users,       roles: ["ADMIN"] },
+  { href: "/admin/notifications", label: "Notifications",  icon: Bell,        roles: ["ADMIN"] },
+  { href: "/admin/audit",         label: "Audit Log",      icon: ScrollText,  roles: ["ADMIN"] },
 ] as const;
 
 const roleColors: Record<Role, string> = {

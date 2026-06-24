@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { prisma } from "@/lib/prisma";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.RESEND_FROM ?? "Production Dashboard <onboarding@resend.dev>";
@@ -6,7 +7,9 @@ const BASE_URL = process.env.NEXTAUTH_URL ?? "https://production-system-pi.verce
 
 async function send(to: string[], subject: string, html: string): Promise<void> {
   if (!to.length || !process.env.RESEND_API_KEY) return;
-  await resend.emails.send({ from: FROM, to, subject, html });
+  const ccRows = await prisma.ccEmail.findMany({ select: { email: true } });
+  const cc = ccRows.map(r => r.email).filter(e => !to.includes(e));
+  await resend.emails.send({ from: FROM, to, subject, html, ...(cc.length ? { cc } : {}) });
 }
 
 function wrap(title: string, body: string): string {
