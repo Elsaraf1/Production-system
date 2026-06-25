@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["xlsx"],
+  serverExternalPackages: ["xlsx", "nodemailer"],
 };
 
 export default nextConfig;

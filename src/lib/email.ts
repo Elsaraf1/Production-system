@@ -1,37 +1,30 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
 
-const FROM = process.env.RESEND_FROM ?? "Production Dashboard <onboarding@resend.dev>";
 const BASE_URL = process.env.NEXTAUTH_URL ?? "https://production-system-pi.vercel.app";
 
+function getTransport() {
+  const user = process.env.GMAIL_USER;
+  const pass = process.env.GMAIL_APP_PASSWORD;
+  if (!user || !pass) return null;
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: { user, pass },
+  });
+}
+
 async function send(to: string[], subject: string, html: string): Promise<void> {
-  if (!process.env.RESEND_API_KEY) return;
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const transport = getTransport();
+  if (!transport) return;
+
   const ccRows = await prisma.ccEmail.findMany({ select: { email: true } });
-  const ccEmails = ccRows.map(r => r.email);
+  const cc = ccRows.map(r => r.email).filter(e => !to.includes(e));
+  const from = `Production Dashboard <${process.env.GMAIL_USER}>`;
 
-  // Send to primary role-based recipients (may fail on free tier / unverified domain)
-  if (to.length) {
-    const filteredCc = ccEmails.filter(e => !to.includes(e));
-    const { error } = await resend.emails.send({
-      from: FROM, to, subject, html,
-      ...(filteredCc.length ? { cc: filteredCc } : {}),
-    });
-    if (error) {
-      // Log but don't throw — fall through so CC-only send still runs
-      console.error(`[email] primary send failed (${to.join(", ")}): ${error.message}`);
-    } else {
-      return; // success — CC was already included above
-    }
-  }
+  const allTo = [...new Set([...to, ...cc])];
+  if (!allTo.length) return;
 
-  // Always send separately to CC addresses not already in TO
-  // Ensures CC subscribers receive notifications even when primary send fails
-  const ccOnly = ccEmails.filter(e => !to.includes(e));
-  if (ccOnly.length) {
-    const { error } = await resend.emails.send({ from: FROM, to: ccOnly, subject, html });
-    if (error) throw new Error(`Resend error (cc-only): ${error.message}`);
-  }
+  await transport.sendMail({ from, to: allTo, subject, html });
 }
 
 function wrap(title: string, body: string): string {
@@ -52,7 +45,6 @@ function table(...rows: string[]): string {
   return `<table style="width:100%;border-collapse:collapse;margin-bottom:16px">${rows.join("")}</table>`;
 }
 
-// Maps each stage to the next stage's label and department for notifications
 export const NEXT_STAGE_NOTIFY: Record<string, { stage: string; department: string } | null> = {
   drawing:    { stage: "Carpentry",   department: "CARPENTRY" },
   carpentry:  { stage: "Painting",    department: "PAINTING" },

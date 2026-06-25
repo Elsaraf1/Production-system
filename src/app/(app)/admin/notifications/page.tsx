@@ -4,7 +4,7 @@ import { TestEmailForm } from "./test-email-form";
 
 export default async function NotificationsPage() {
   const ccEmails = await prisma.ccEmail.findMany({ orderBy: { createdAt: "asc" } });
-  const hasApiKey = !!process.env.RESEND_API_KEY;
+  const hasApiKey = !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -26,7 +26,7 @@ export default async function NotificationsPage() {
         </div>
         {!hasApiKey && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
-            Add <code className="font-mono font-semibold">RESEND_API_KEY</code> to your <code className="font-mono">.env.local</code> file (and to Vercel environment variables) then restart the dev server.
+            Add <code className="font-mono font-semibold">GMAIL_USER</code> and <code className="font-mono font-semibold">GMAIL_APP_PASSWORD</code> to your <code className="font-mono">.env.local</code> file (and to Vercel environment variables) then restart the dev server.
           </div>
         )}
         <TestEmailForm />
