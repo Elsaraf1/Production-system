@@ -144,9 +144,10 @@ model PurchaseRequisition {
   quantity      Float
   unit          String
   status        PRStatus   @default(DRAFT)
-  requestedDate DateTime?
-  receivedDate  DateTime?
-  createdById   String
+  requestedDate    DateTime?
+  receivedDate     DateTime?
+  otherDescription String?
+  createdById      String
   version       Int        @default(0)
   createdAt     DateTime   @default(now())
 

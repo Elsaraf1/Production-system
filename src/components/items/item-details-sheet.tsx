@@ -17,6 +17,7 @@ interface Note {
 interface PR {
   id: string; material: string; status: string;
   requestedDate: string | null; createdAt: string;
+  otherDescription: string | null;
   createdBy: { displayName: string };
 }
 
@@ -57,6 +58,7 @@ export function ItemDetailsSheet({
   const [savedDelay, setSavedDelay] = useState(initialDelay);
   const [requiresMaterial, setRequiresMaterial] = useState(initialRequiresMaterial);
   const [newNote, setNewNote] = useState("");
+  const [otherDesc, setOtherDesc] = useState("");
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -83,7 +85,7 @@ export function ItemDetailsSheet({
   function isRequired(material: string) { return !!activePR(material); }
   function isArrived(material: string) { return activePR(material)?.status === "RECEIVED"; }
 
-  async function toggleRequired(material: string, checked: boolean) {
+  async function toggleRequired(material: string, checked: boolean, desc?: string) {
     startTransition(async () => {
       if (checked) {
         const res = await fetch(`/api/items/${itemId}/prs`, {
@@ -92,9 +94,10 @@ export function ItemDetailsSheet({
             prNumber: `${itemId.slice(-6).toUpperCase()}-${material}`,
             material, quantity: 1, unit: "-",
             requestedDate: new Date().toISOString().split("T")[0],
+            ...(material === "OTHER" ? { otherDescription: desc ?? "" } : {}),
           }),
         });
-        if (res.ok) { const pr = await res.json(); setPRs(prev => [...prev, pr]); }
+        if (res.ok) { const pr = await res.json(); setPRs(prev => [...prev, pr]); setOtherDesc(""); }
       } else {
         const pr = activePR(material);
         if (!pr) return;
@@ -218,11 +221,27 @@ export function ItemDetailsSheet({
                   const required = isRequired(key);
                   const arrived = isArrived(key);
                   const pr = activePR(key);
+                  const isOther = key === "OTHER";
                   return (
                     <tr key={key} className={`border-b last:border-0 ${!required ? "opacity-40" : ""}`}>
                       <td className="py-2.5">
                         <div>
-                          <span className="font-medium">{label}</span>
+                          <span className="font-medium">
+                            {isOther && pr?.otherDescription ? `Other — ${pr.otherDescription}` : label}
+                          </span>
+                          {isOther && !required && canRequest && (
+                            <div className="mt-1 flex items-center gap-1.5">
+                              <input
+                                type="text"
+                                value={otherDesc}
+                                onChange={e => setOtherDesc(e.target.value.slice(0, 20))}
+                                placeholder="Specify (max 20 chars)"
+                                className="text-xs border rounded px-2 py-1 w-40 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                                maxLength={20}
+                              />
+                              <span className="text-xs text-muted-foreground">{otherDesc.length}/20</span>
+                            </div>
+                          )}
                           {pr && (
                             <p className="text-xs text-muted-foreground">
                               {pr.createdBy.displayName} · {new Date(pr.requestedDate ?? pr.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
@@ -240,8 +259,9 @@ export function ItemDetailsSheet({
                           <input
                             type="checkbox"
                             checked={required}
-                            disabled={isPending || !canRequest}
-                            onChange={e => toggleRequired(key, e.target.checked)}
+                            disabled={isPending || !canRequest || (isOther && !required && !otherDesc.trim())}
+                            title={isOther && !required && !otherDesc.trim() ? "Enter a description first" : undefined}
+                            onChange={e => toggleRequired(key, e.target.checked, isOther ? otherDesc.trim() : undefined)}
                             className="h-4 w-4 accent-amber-500 cursor-pointer disabled:cursor-not-allowed"
                           />
                         )}

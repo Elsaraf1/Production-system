@@ -24,6 +24,7 @@ const postSchema = z.object({
   quantity: z.number().positive(),
   unit: z.string().min(1),
   requestedDate: z.string().nullable().optional(),
+  otherDescription: z.string().max(20).optional().or(z.literal("")),
 });
 
 export async function POST(req: NextRequest, ctx: RouteContext<"/api/items/[itemId]/prs">) {
@@ -46,6 +47,7 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/items/[item
         requestedDate: parsed.data.requestedDate ? new Date(parsed.data.requestedDate) : null,
         createdById: session.user.id,
         status: "ORDERED",
+        otherDescription: parsed.data.material === "OTHER" ? (parsed.data.otherDescription || null) : null,
       },
       include: { createdBy: { select: { displayName: true } } },
     });
@@ -62,7 +64,9 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/items/[item
     ]);
     if (item) await notifyMaterialRequested(
       { itemCode: item.itemCode, ppoNumber: item.salesOrder.ppoNumber },
-      parsed.data.material,
+      parsed.data.material === "OTHER" && parsed.data.otherDescription
+        ? `Other — ${parsed.data.otherDescription}`
+        : parsed.data.material,
       recipients.map(u => u.email!)
     );
   } catch (err) { console.error("[email] notifyMaterialRequested:", err); }

@@ -23,6 +23,7 @@ export default async function ProcurementPage() {
     rsd:         pr.orderItem.salesOrder.rsd.toISOString(),
     itemCode:    pr.orderItem.itemCode,
     material:    pr.material,
+    otherDescription: pr.otherDescription ?? null,
     status:      pr.status,
     requestedDate: pr.requestedDate?.toISOString() ?? null,
     receivedDate:  pr.receivedDate?.toISOString() ?? null,

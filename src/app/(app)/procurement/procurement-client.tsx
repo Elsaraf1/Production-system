@@ -14,6 +14,7 @@ interface PRRow {
   rsd: string;
   itemCode: string;
   material: string;
+  otherDescription: string | null;
   status: PRStatus;
   requestedDate: string | null;
   receivedDate: string | null;
@@ -215,7 +216,11 @@ export function ProcurementClient({ rows: initialRows, canEdit }: { rows: PRRow[
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-gray-500">{pr.itemCode}</td>
                   <td className="px-4 py-3">
-                    <span className="font-medium text-gray-700">{pr.material}</span>
+                    <span className="font-medium text-gray-700">
+                      {pr.material === "OTHER" && pr.otherDescription
+                        ? `Other — ${pr.otherDescription}`
+                        : pr.material}
+                    </span>
                   </td>
                   <td className="px-4 py-3">
                     <PRStatusCell
