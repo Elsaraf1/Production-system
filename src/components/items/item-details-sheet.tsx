@@ -223,7 +223,7 @@ export function ItemDetailsSheet({
                   const pr = activePR(key);
                   const isOther = key === "OTHER";
                   return (
-                    <tr key={key} className={`border-b last:border-0 ${!required ? "opacity-40" : ""}`}>
+                    <tr key={key} className={`border-b last:border-0 ${!required && !(isOther && canRequest) ? "opacity-40" : ""}`}>
                       <td className="py-2.5">
                         <div>
                           <span className="font-medium">
@@ -239,7 +239,7 @@ export function ItemDetailsSheet({
                                 className="text-xs border rounded px-2 py-1 w-40 focus:outline-none focus:ring-1 focus:ring-gray-300"
                                 maxLength={20}
                               />
-                              <span className="text-xs text-muted-foreground">{otherDesc.length}/20</span>
+                              <span className="text-xs text-muted-foreground">{otherDesc.length}/20 — then check ✓</span>
                             </div>
                           )}
                           {pr && (
