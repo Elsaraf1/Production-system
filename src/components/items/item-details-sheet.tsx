@@ -91,7 +91,7 @@ export function ItemDetailsSheet({
         const res = await fetch(`/api/items/${itemId}/prs`, {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            prNumber: `${itemId.slice(-6).toUpperCase()}-${material}`,
+            prNumber: `${itemId.slice(-6).toUpperCase()}-${material}-${Date.now()}`,
             material, quantity: 1, unit: "-",
             requestedDate: new Date().toISOString().split("T")[0],
             ...(material === "OTHER" ? { otherDescription: desc ?? "" } : {}),
