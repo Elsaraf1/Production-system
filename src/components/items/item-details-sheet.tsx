@@ -239,7 +239,7 @@ export function ItemDetailsSheet({
                                 className="text-xs border rounded px-2 py-1 w-40 focus:outline-none focus:ring-1 focus:ring-gray-300"
                                 maxLength={20}
                               />
-                              <span className="text-xs text-muted-foreground">{otherDesc.length}/20 — then check ✓</span>
+                              <span className="text-xs text-muted-foreground">{otherDesc.length}/20</span>
                             </div>
                           )}
                           {pr && (
@@ -259,8 +259,7 @@ export function ItemDetailsSheet({
                           <input
                             type="checkbox"
                             checked={required}
-                            disabled={isPending || !canRequest || (isOther && !required && !otherDesc.trim())}
-                            title={isOther && !required && !otherDesc.trim() ? "Enter a description first" : undefined}
+                            disabled={isPending || !canRequest}
                             onChange={e => toggleRequired(key, e.target.checked, isOther ? otherDesc.trim() : undefined)}
                             className="h-4 w-4 accent-amber-500 cursor-pointer disabled:cursor-not-allowed"
                           />
