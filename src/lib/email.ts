@@ -45,13 +45,16 @@ function table(...rows: string[]): string {
   return `<table style="width:100%;border-collapse:collapse;margin-bottom:16px">${rows.join("")}</table>`;
 }
 
-export const NEXT_STAGE_NOTIFY: Record<string, { stage: string; department: string } | null> = {
-  drawing:    { stage: "Carpentry",   department: "CARPENTRY" },
-  carpentry:  { stage: "Painting",    department: "PAINTING" },
-  painting:   { stage: "Upholstery",  department: "UPHOLSTERY" },
-  upholstery: { stage: "Packing",     department: "PACKING" },
-  packing:    null,
+// Info for each stage (used to look up label + department for any stage)
+export const STAGE_INFO: Record<string, { label: string; department: string }> = {
+  drawing:    { label: "Drawing",    department: "DRAWING" },
+  carpentry:  { label: "Carpentry",  department: "CARPENTRY" },
+  painting:   { label: "Painting",   department: "PAINTING" },
+  upholstery: { label: "Upholstery", department: "UPHOLSTERY" },
+  packing:    { label: "Packing",    department: "PACKING" },
 };
+
+export const STAGE_ORDER = ["drawing", "carpentry", "painting", "upholstery", "packing"] as const;
 
 export async function notifyOrderCreated(
   order: { ppoNumber: string; clientName: string; rsd: Date },

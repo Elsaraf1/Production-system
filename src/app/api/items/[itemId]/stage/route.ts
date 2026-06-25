@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { writeAuditLog } from "@/lib/audit";
-import { notifyStageDone, NEXT_STAGE_NOTIFY } from "@/lib/email";
+import { notifyStageDone, STAGE_INFO, STAGE_ORDER } from "@/lib/email";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import type { Department, StageStatus } from "@/generated/prisma/client";
@@ -14,7 +14,6 @@ const stageMap: Record<string, { statusField: string; dateField: string; departm
   packing:    { statusField: "packingStatus",    dateField: "packingDate",    department: "PACKING" },
 };
 
-const STAGE_ORDER = ["drawing", "carpentry", "painting", "upholstery", "packing"] as const;
 
 const schema = z.object({
   stage: z.enum(["drawing", "carpentry", "painting", "upholstery", "packing"]),
@@ -121,12 +120,21 @@ export async function PATCH(
     return Response.json({ conflict: true, current: fresh }, { status: 409 });
   }
 
-  if (status === "DONE") {
-    const next = NEXT_STAGE_NOTIFY[stage];
-    if (next) {
+  if (status === "DONE" && updated) {
+    // Find the first stage after this one that is not DONE and not NA
+    const idx = STAGE_ORDER.indexOf(stage as typeof STAGE_ORDER[number]);
+    let nextKey: string | null = null;
+    for (let i = idx + 1; i < STAGE_ORDER.length; i++) {
+      const k = STAGE_ORDER[i];
+      const cfg = stageMap[k];
+      const st = updated[cfg.statusField as keyof typeof updated] as StageStatus;
+      if (st !== "DONE" && st !== "NA") { nextKey = k; break; }
+    }
+    if (nextKey) {
+      const nextInfo = STAGE_INFO[nextKey];
       try {
         const [deptUsers, plannerUsers, item] = await Promise.all([
-          prisma.user.findMany({ where: { role: "PRODUCTION", department: next.department as Department, isActive: true, email: { not: null } }, select: { email: true } }),
+          prisma.user.findMany({ where: { role: "PRODUCTION", department: nextInfo.department as Department, isActive: true, email: { not: null } }, select: { email: true } }),
           prisma.user.findMany({ where: { role: "PLANNER", isActive: true, email: { not: null } }, select: { email: true } }),
           prisma.orderItem.findUnique({ where: { id: itemId }, include: { salesOrder: { select: { ppoNumber: true } } } }),
         ]);
@@ -134,7 +142,7 @@ export async function PATCH(
         if (item) await notifyStageDone(
           { itemCode: item.itemCode, ppoNumber: item.salesOrder.ppoNumber },
           stage,
-          next.stage,
+          nextInfo.label,
           emails
         );
       } catch (err) { console.error("[email] notifyStageDone:", err); }
