@@ -50,6 +50,7 @@ export function StageTable({ rows: initialRows, stageLabel, stageKey, canEdit }:
   const [sortKey, setSortKey] = useState<SortKey>("rsd");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [showColFilters, setShowColFilters] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const presentStatuses = useMemo(
     () => ALL_STATUSES.filter(s => rows.some(r => r.status === s)),
@@ -103,6 +104,15 @@ export function StageTable({ rows: initialRows, stageLabel, stageKey, canEdit }:
     return c;
   }, [rows]);
 
+  const groups = useMemo(() => {
+    const map = new Map<string, StageRow[]>();
+    for (const row of filtered) {
+      if (!map.has(row.ppoNumber)) map.set(row.ppoNumber, []);
+      map.get(row.ppoNumber)!.push(row);
+    }
+    return [...map.entries()];
+  }, [filtered]);
+
   function SortIcon({ col }: { col: SortKey }) {
     if (sortKey !== col) return <ChevronsUpDown className="h-3 w-3 text-gray-300 inline ml-1" />;
     return sortDir === "asc"
@@ -113,7 +123,7 @@ export function StageTable({ rows: initialRows, stageLabel, stageKey, canEdit }:
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:sticky lg:top-[56px] lg:z-10 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:h-[68px] lg:border-b lg:border-gray-200">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:sticky lg:top-[68px] lg:z-10 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:h-[68px] lg:border-b lg:border-gray-200">
         <div>
           <h2 className="text-lg font-semibold">{stageLabel}</h2>
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-muted-foreground">
@@ -131,6 +141,12 @@ export function StageTable({ rows: initialRows, stageLabel, stageKey, canEdit }:
             className="w-full sm:w-52 h-9"
           />
           <button
+            onClick={() => setCollapsed(v => !v)}
+            className="shrink-0 text-xs px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50 transition-colors"
+          >
+            {collapsed ? "Show All" : "Collapse All"}
+          </button>
+          <button
             onClick={() => setShowColFilters(v => !v)}
             className={`shrink-0 text-xs px-3 py-2 rounded-md border transition-colors ${showColFilters ? "bg-gray-900 text-white border-gray-900" : "border-gray-200 hover:bg-gray-50"}`}
           >
@@ -146,7 +162,7 @@ export function StageTable({ rows: initialRows, stageLabel, stageKey, canEdit }:
               {COLS.map(col => (
                 <th
                   key={col.key}
-                  className="lg:sticky lg:z-10 lg:top-[124px] bg-gray-50 text-left px-4 py-3 font-semibold text-gray-600 cursor-pointer select-none whitespace-nowrap hover:bg-gray-100 transition-colors"
+                  className="lg:sticky lg:z-10 lg:top-[136px] bg-gray-50 text-left px-4 py-3 font-semibold text-gray-600 cursor-pointer select-none whitespace-nowrap hover:bg-gray-100 transition-colors"
                   onClick={() => handleSort(col.key)}
                 >
                   {col.label}
@@ -157,9 +173,9 @@ export function StageTable({ rows: initialRows, stageLabel, stageKey, canEdit }:
 
             {/* Column filter row */}
             {showColFilters && (
-              <tr className="border-b bg-gray-50/50">
+              <tr className="border-b">
                 {COLS.map(col => (
-                  <td key={col.key} className="px-2 py-1.5">
+                  <td key={col.key} className="lg:sticky lg:z-10 lg:top-[180px] bg-gray-50 px-2 py-1.5">
                     {col.key === "status" ? (
                       /* Status: checkbox row */
                       <div className="flex items-center gap-2 flex-wrap">
@@ -207,7 +223,29 @@ export function StageTable({ rows: initialRows, stageLabel, stageKey, canEdit }:
                 </td>
               </tr>
             )}
-            {filtered.map(row => {
+            {collapsed && groups.map(([ppo, groupRows]) => {
+              const first = groupRows[0];
+              const isGroupOverdue = new Date(first.rsd) < new Date();
+              return (
+                <tr key={ppo} className="hover:bg-gray-50/70 transition-colors">
+                  <td colSpan={COLS.length} className="px-4 py-3">
+                    <div className="flex items-center gap-3 flex-wrap text-sm">
+                      <Link href={`/orders/${first.salesOrderId}`} className="font-mono font-semibold text-gray-900 hover:underline">
+                        {ppo}
+                      </Link>
+                      <span className="text-gray-600">{first.clientName}</span>
+                      <span className={isGroupOverdue ? "text-red-600 font-medium" : "text-gray-500"}>
+                        {format(first.rsd)}
+                      </span>
+                      <span className="text-gray-400 ml-auto">
+                        {groupRows.length} item{groupRows.length !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+            {!collapsed && filtered.map(row => {
               const isOverdue = row.status !== "DONE" && row.status !== "NA" && new Date(row.rsd) < new Date();
               return (
                 <tr key={row.id} className="hover:bg-gray-50/70 transition-colors">
