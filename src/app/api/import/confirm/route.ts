@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { writeAuditLog } from "@/lib/audit";
+import { findMatchingItem } from "@/lib/order-item-match";
 import { NextRequest } from "next/server";
 import type { PlannerRow } from "@/lib/excel";
 
@@ -34,10 +35,19 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // Upsert OrderItem
-      const existing = await prisma.orderItem.findFirst({
-        where: { salesOrderId: order.id, itemCode: row.itemCode },
+      // Upsert OrderItem — match by Production Order No when the row has a real
+      // one (the true unique identifier per line); fall back to item code for
+      // rows with no PO number yet. See findMatchingItem for details.
+      const candidates = await prisma.orderItem.findMany({
+        where: {
+          salesOrderId: order.id,
+          OR: [
+            { itemCode: row.itemCode },
+            ...(row.productionOrderNo ? [{ productionOrderNo: row.productionOrderNo }] : []),
+          ],
+        },
       });
+      const existing = findMatchingItem(candidates, row);
 
       if (!existing) {
         const item = await prisma.orderItem.create({

@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parsePlannerFile } from "@/lib/excel";
+import { findMatchingItem } from "@/lib/order-item-match";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -27,10 +28,9 @@ export async function POST(req: NextRequest) {
 
   const preview = rows.map(row => {
     const order = orderMap.get(row.ppoNumber);
-    const items = order?.items.filter(i => i.itemCode === row.itemCode) ?? [];
+    const item = order ? findMatchingItem(order.items, row) : undefined;
     const changes: string[] = [];
-    if (items.length > 0) {
-      const item = items[0];
+    if (item) {
       const fields: [string, string][] = [
         ["drawingStatus","Drawing"],["carpentryStatus","Carpentry"],
         ["paintingStatus","Painting"],["upholsteryStatus","Upholstery"],["packingStatus","Packing"],
@@ -47,8 +47,8 @@ export async function POST(req: NextRequest) {
     }
     return {
       ppoNumber: row.ppoNumber, itemCode: row.itemCode, description: row.description,
-      isNewOrder: !order, isNewItem: items.length === 0,
-      affectsCount: items.length, changes,
+      isNewOrder: !order, isNewItem: !item,
+      affectsCount: item ? 1 : 0, changes,
     };
   });
 
