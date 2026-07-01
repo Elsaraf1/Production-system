@@ -73,7 +73,7 @@ export async function notifyOrderCreated(
 }
 
 export async function notifyMaterialRequested(
-  item: { itemCode: string; ppoNumber: string },
+  item: { itemCode: string; ppoNumber: string; clientName: string },
   material: string,
   emails: string[]
 ): Promise<void> {
@@ -81,6 +81,7 @@ export async function notifyMaterialRequested(
     emails,
     `Material Requested: ${material} — ${item.ppoNumber}`,
     wrap("Material requested", table(
+      row("Client", item.clientName),
       row("PPO Number", item.ppoNumber),
       row("Item Code", item.itemCode),
       row("Material", material),
@@ -100,7 +101,7 @@ export async function notifyBulkMaterialRequested(count: number, emails: string[
 }
 
 export async function notifyMaterialReceived(
-  item: { itemCode: string; ppoNumber: string },
+  item: { itemCode: string; ppoNumber: string; clientName: string },
   material: string,
   emails: string[]
 ): Promise<void> {
@@ -108,6 +109,7 @@ export async function notifyMaterialReceived(
     emails,
     `Material Arrived: ${material} — ${item.ppoNumber}`,
     wrap("Material received", table(
+      row("Client", item.clientName),
       row("PPO Number", item.ppoNumber),
       row("Item Code", item.itemCode),
       row("Material", material),
@@ -127,7 +129,7 @@ export async function notifyBulkMaterialReceived(count: number, emails: string[]
 }
 
 export async function notifyStageDone(
-  item: { itemCode: string; ppoNumber: string },
+  item: { itemCode: string; ppoNumber: string; clientName: string },
   completedStage: string,
   nextStage: string,
   emails: string[]
@@ -137,6 +139,7 @@ export async function notifyStageDone(
     emails,
     `${stageName} Done — ${item.ppoNumber} (${item.itemCode}) ready for ${nextStage}`,
     wrap(`${stageName} stage completed`, table(
+      row("Client", item.clientName),
       row("PPO Number", item.ppoNumber),
       row("Item Code", item.itemCode),
       row("Completed Stage", stageName),

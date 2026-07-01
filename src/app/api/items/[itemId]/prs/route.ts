@@ -60,10 +60,10 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/items/[item
   try {
     const [recipients, item] = await Promise.all([
       prisma.user.findMany({ where: { role: "PROCUREMENT", isActive: true, email: { not: null } }, select: { email: true } }),
-      prisma.orderItem.findUnique({ where: { id: itemId }, include: { salesOrder: { select: { ppoNumber: true } } } }),
+      prisma.orderItem.findUnique({ where: { id: itemId }, include: { salesOrder: { select: { ppoNumber: true, clientName: true } } } }),
     ]);
     if (item) await notifyMaterialRequested(
-      { itemCode: item.itemCode, ppoNumber: item.salesOrder.ppoNumber },
+      { itemCode: item.itemCode, ppoNumber: item.salesOrder.ppoNumber, clientName: item.salesOrder.clientName },
       parsed.data.material === "OTHER" && parsed.data.otherDescription
         ? `Other — ${parsed.data.otherDescription}`
         : parsed.data.material,

@@ -136,11 +136,11 @@ export async function PATCH(
         const [deptUsers, plannerUsers, item] = await Promise.all([
           prisma.user.findMany({ where: { role: "PRODUCTION", department: nextInfo.department as Department, isActive: true, email: { not: null } }, select: { email: true } }),
           prisma.user.findMany({ where: { role: "PLANNER", isActive: true, email: { not: null } }, select: { email: true } }),
-          prisma.orderItem.findUnique({ where: { id: itemId }, include: { salesOrder: { select: { ppoNumber: true } } } }),
+          prisma.orderItem.findUnique({ where: { id: itemId }, include: { salesOrder: { select: { ppoNumber: true, clientName: true } } } }),
         ]);
         const emails = [...new Set([...deptUsers, ...plannerUsers].map(u => u.email!))];
         if (item) await notifyStageDone(
-          { itemCode: item.itemCode, ppoNumber: item.salesOrder.ppoNumber },
+          { itemCode: item.itemCode, ppoNumber: item.salesOrder.ppoNumber, clientName: item.salesOrder.clientName },
           stage,
           nextInfo.label,
           emails

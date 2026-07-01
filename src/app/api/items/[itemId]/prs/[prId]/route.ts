@@ -50,10 +50,10 @@ export async function PATCH(
     try {
       const [recipients, item] = await Promise.all([
         prisma.user.findMany({ where: { role: "TECHNICAL", isActive: true, email: { not: null } }, select: { email: true } }),
-        prisma.orderItem.findUnique({ where: { id: itemId }, include: { salesOrder: { select: { ppoNumber: true } } } }),
+        prisma.orderItem.findUnique({ where: { id: itemId }, include: { salesOrder: { select: { ppoNumber: true, clientName: true } } } }),
       ]);
       if (item) await notifyMaterialReceived(
-        { itemCode: item.itemCode, ppoNumber: item.salesOrder.ppoNumber },
+        { itemCode: item.itemCode, ppoNumber: item.salesOrder.ppoNumber, clientName: item.salesOrder.clientName },
         current.material,
         recipients.map(u => u.email!)
       );
