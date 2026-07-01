@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
       const prData = toCreate.map(m => ({
         id: randomUUID(),
         orderItemId: m.itemId,
-        prNumber: `${m.itemId.slice(-6).toUpperCase()}-${m.material}-IMP`,
+        prNumber: `${m.itemId.slice(-6).toUpperCase()}-${m.material}-${Date.now()}`,
         material: m.material as "MARBLE" | "GLASS" | "MIRROR" | "PORCELAIN" | "METAL" | "HANDLES" | "BRASS" | "LAMITAK_LIPPING" | "OTHER",
         quantity: 1, unit: "-", status: "ORDERED" as const,
         requestedDate: new Date(),
