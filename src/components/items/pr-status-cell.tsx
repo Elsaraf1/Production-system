@@ -17,7 +17,7 @@ interface PRStatusCellProps {
   prId: string;
   status: PRStatus;
   canEdit: boolean;
-  onUpdate?: (newStatus: PRStatus) => void;
+  onUpdate?: (newStatus: PRStatus, receivedDate?: string | null) => void;
 }
 
 export function PRStatusCell({ itemId, prId, status, canEdit, onUpdate }: PRStatusCellProps) {
@@ -32,8 +32,9 @@ export function PRStatusCell({ itemId, prId, status, canEdit, onUpdate }: PRStat
         body: JSON.stringify({ status: newStatus }),
       });
       if (res.ok) {
+        const data = await res.json();
         setCurrent(newStatus);
-        onUpdate?.(newStatus);
+        onUpdate?.(newStatus, data.receivedDate ?? null);
       }
     });
   }

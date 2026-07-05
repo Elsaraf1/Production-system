@@ -228,8 +228,8 @@ export function ProcurementClient({ rows: initialRows, canEdit }: { rows: PRRow[
                       prId={pr.id}
                       status={pr.status}
                       canEdit={canEdit}
-                      onUpdate={(newStatus) => {
-                        setRows(prev => prev.map(r => r.id === pr.id ? { ...r, status: newStatus } : r));
+                      onUpdate={(newStatus, receivedDate) => {
+                        setRows(prev => prev.map(r => r.id === pr.id ? { ...r, status: newStatus, receivedDate: receivedDate ?? r.receivedDate } : r));
                       }}
                     />
                   </td>
