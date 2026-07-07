@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/in-progress-reminder",
-      "schedule": "0 6 * * *"
+      "schedule": "0 6 * * 1,4"
     }
   ]
 }

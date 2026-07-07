@@ -176,6 +176,12 @@ model CcEmail {
   createdAt DateTime @default(now())
 }
 
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 model AuditLog {
   id          String      @id @default(cuid())
   userId      String

@@ -178,6 +178,42 @@ export async function notifyInProgressOverdue(
   );
 }
 
+export async function notifyProcurementOverdue(
+  items: { ppoNumber: string; itemCode: string; clientName: string; material: string; daysOrdered: number }[],
+  emails: string[]
+): Promise<void> {
+  const itemRows = items
+    .sort((a, b) => b.daysOrdered - a.daysOrdered)
+    .map(i => `<tr>
+      <td style="padding:6px 10px;border-bottom:1px solid #f0f0f0;font-family:monospace;font-size:13px">${i.ppoNumber}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #f0f0f0;font-family:monospace;font-size:13px">${i.itemCode}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #f0f0f0">${i.clientName}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #f0f0f0;font-weight:600">${i.material}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #f0f0f0;color:#dc2626;font-weight:600">${i.daysOrdered} day${i.daysOrdered !== 1 ? "s" : ""}</td>
+    </tr>`).join("");
+
+  await send(
+    emails,
+    `⚠️ ${items.length} PR${items.length !== 1 ? "s" : ""} Pending — Material Not Yet Received`,
+    wrap("Procurement — overdue purchase requisitions", `
+      <p style="color:#dc2626;font-weight:600">${items.length} purchase requisition${items.length !== 1 ? "s have" : " has"} been in the <strong>Ordered</strong> state without being received.</p>
+      <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px">
+        <thead>
+          <tr style="background:#fef2f2">
+            <th style="padding:8px 10px;text-align:left;font-size:12px;color:#666;border-bottom:2px solid #fee2e2">PPO</th>
+            <th style="padding:8px 10px;text-align:left;font-size:12px;color:#666;border-bottom:2px solid #fee2e2">Item Code</th>
+            <th style="padding:8px 10px;text-align:left;font-size:12px;color:#666;border-bottom:2px solid #fee2e2">Client</th>
+            <th style="padding:8px 10px;text-align:left;font-size:12px;color:#666;border-bottom:2px solid #fee2e2">Material</th>
+            <th style="padding:8px 10px;text-align:left;font-size:12px;color:#666;border-bottom:2px solid #fee2e2">Days Ordered</th>
+          </tr>
+        </thead>
+        <tbody>${itemRows}</tbody>
+      </table>
+      <p style="color:#555">Please follow up with the supplier or update the status in the Procurement page.</p>
+    `)
+  );
+}
+
 export async function notifyStageDone(
   item: { itemCode: string; ppoNumber: string; clientName: string },
   completedStage: string,
