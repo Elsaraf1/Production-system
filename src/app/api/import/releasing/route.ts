@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseReleasingFile } from "@/lib/excel";
+import { notifyBulkReleasingDone } from "@/lib/email";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -84,6 +85,17 @@ export async function POST(req: NextRequest) {
       });
     }
   }, { timeout: 30000 });
+
+  if (toUpdate.length > 0) {
+    try {
+      const [carpentryUsers, plannerUsers] = await Promise.all([
+        prisma.user.findMany({ where: { role: "PRODUCTION", department: "CARPENTRY", isActive: true, email: { not: null } }, select: { email: true } }),
+        prisma.user.findMany({ where: { role: "PLANNER", isActive: true, email: { not: null } }, select: { email: true } }),
+      ]);
+      const emails = [...new Set([...carpentryUsers, ...plannerUsers].map(u => u.email!))];
+      await notifyBulkReleasingDone(toUpdate.length, emails);
+    } catch (err) { console.error("[email] notifyBulkReleasingDone:", err); }
+  }
 
   return Response.json({ updated: toUpdate.length, skipped: alreadyDone, notFound: notFound.length });
   } catch (err) {
