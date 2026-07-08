@@ -22,7 +22,7 @@ const PLANNER_DEPTS = ["CARPENTRY", "PAINTING", "UPHOLSTERY", "PACKING"];
 function canEditStage(role: Role, department: Department | null, stageDept: string): boolean {
   if (role === "ADMIN") return true;
   if (role === "PRODUCTION" && department === stageDept) return true;
-  if (role === "PLANNER" && PLANNER_DEPTS.includes(stageDept)) return true;
+  if ((role === "PLANNER" || role === "GM") && PLANNER_DEPTS.includes(stageDept)) return true;
   if (role === "TECHNICAL" && stageDept === "DRAWING") return true;
   return false;
 }

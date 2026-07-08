@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
   const session = await auth();
   if (!session) return new Response(null, { status: 401 });
-  if (!["ADMIN", "PLANNER"].includes(session.user.role)) return new Response(null, { status: 403 });
+  if (!["ADMIN", "GM", "PLANNER"].includes(session.user.role)) return new Response(null, { status: 403 });
 
   const { rows }: { rows: PlannerRow[] } = await req.json();
   if (!rows?.length) return Response.json({ error: "No rows" }, { status: 400 });

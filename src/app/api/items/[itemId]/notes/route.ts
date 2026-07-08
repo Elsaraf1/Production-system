@@ -22,7 +22,7 @@ const postSchema = z.object({ content: z.string().min(1).max(1000) });
 export async function POST(req: NextRequest, ctx: RouteContext<"/api/items/[itemId]/notes">) {
   const session = await auth();
   if (!session) return new Response(null, { status: 401 });
-  if (!["ADMIN", "PRODUCTION", "PLANNER", "TECHNICAL", "PROCUREMENT"].includes(session.user.role)) {
+  if (!["ADMIN", "GM", "PRODUCTION", "PLANNER", "TECHNICAL", "PROCUREMENT"].includes(session.user.role)) {
     return new Response(null, { status: 403 });
   }
   const { itemId } = await ctx.params;

@@ -90,10 +90,10 @@ export default async function StagesPage() {
   const { role } = session.user;
   const canEdit: Record<StageKey, boolean> = {
     DRAWING:    role === "ADMIN" || (role === "PRODUCTION" && department === "DRAWING") || role === "TECHNICAL",
-    CARPENTRY:  role === "ADMIN" || (role === "PRODUCTION" && department === "CARPENTRY") || role === "PLANNER",
-    PAINTING:   role === "ADMIN" || (role === "PRODUCTION" && department === "PAINTING") || role === "PLANNER",
-    UPHOLSTERY: role === "ADMIN" || (role === "PRODUCTION" && department === "UPHOLSTERY") || role === "PLANNER",
-    PACKING:    role === "ADMIN" || (role === "PRODUCTION" && department === "PACKING") || role === "PLANNER",
+    CARPENTRY:  role === "ADMIN" || (role === "PRODUCTION" && department === "CARPENTRY") || role === "PLANNER" || role === "GM",
+    PAINTING:   role === "ADMIN" || (role === "PRODUCTION" && department === "PAINTING") || role === "PLANNER" || role === "GM",
+    UPHOLSTERY: role === "ADMIN" || (role === "PRODUCTION" && department === "UPHOLSTERY") || role === "PLANNER" || role === "GM",
+    PACKING:    role === "ADMIN" || (role === "PRODUCTION" && department === "PACKING") || role === "PLANNER" || role === "GM",
     PR: false,
   };
 

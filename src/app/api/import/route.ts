@@ -7,7 +7,7 @@ import { NextRequest } from "next/server";
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return new Response(null, { status: 401 });
-  if (!["ADMIN", "PLANNER"].includes(session.user.role)) return new Response(null, { status: 403 });
+  if (!["ADMIN", "GM", "PLANNER"].includes(session.user.role)) return new Response(null, { status: 403 });
 
   const formData = await req.formData();
   const file = formData.get("file") as File | null;

@@ -9,7 +9,7 @@ const createSchema = z.object({
   username: z.string().min(2).max(50),
   password: z.string().min(6),
   displayName: z.string().min(1).max(100),
-  role: z.enum(["ADMIN", "PRODUCTION", "PLANNER", "TECHNICAL", "PROCUREMENT", "SALES"]),
+  role: z.enum(["ADMIN", "GM", "PRODUCTION", "PLANNER", "TECHNICAL", "PROCUREMENT", "SALES"]),
   department: z.enum(["DRAWING", "CARPENTRY", "PAINTING", "UPHOLSTERY", "PACKING", "PR_CREATION"]).nullable().optional(),
   email: z.string().email().optional().or(z.literal("")),
 });
