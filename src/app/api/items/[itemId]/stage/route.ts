@@ -42,7 +42,7 @@ export async function PATCH(
   const canUpdate =
     role === "ADMIN" ||
     (role === "PRODUCTION" && department === stageConfig.department) ||
-    ((role === "PLANNER" || role === "GM") && PLANNER_STAGES.includes(stage)) ||
+    ((role === "PLANNER" || role === "GM" || role === "BD") && PLANNER_STAGES.includes(stage)) ||
     (role === "TECHNICAL" && stage === "drawing");
 
   if (!canUpdate) return new Response(null, { status: 403 });
@@ -135,7 +135,7 @@ export async function PATCH(
       try {
         const [deptUsers, plannerUsers, item] = await Promise.all([
           prisma.user.findMany({ where: { role: "PRODUCTION", department: nextInfo.department as Department, isActive: true, email: { not: null } }, select: { email: true } }),
-          prisma.user.findMany({ where: { role: { in: ["PLANNER", "GM"] }, isActive: true, email: { not: null } }, select: { email: true } }),
+          prisma.user.findMany({ where: { role: { in: ["PLANNER", "GM", "BD"] }, isActive: true, email: { not: null } }, select: { email: true } }),
           prisma.orderItem.findUnique({ where: { id: itemId }, include: { salesOrder: { select: { ppoNumber: true, clientName: true } } } }),
         ]);
         const emails = [...new Set([...deptUsers, ...plannerUsers].map(u => u.email!))];

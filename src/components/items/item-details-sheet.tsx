@@ -72,8 +72,8 @@ export function ItemDetailsSheet({
     onPRsChange?.(prs.map(p => ({ material: p.material, status: p.status })));
   }, [prs]);
 
-  const canNote = ["ADMIN", "GM", "PRODUCTION", "PLANNER", "TECHNICAL", "PROCUREMENT"].includes(role);
-  const canDelay = ["ADMIN", "GM", "PRODUCTION", "PLANNER"].includes(role);
+  const canNote = ["ADMIN", "GM", "BD", "PRODUCTION", "PLANNER", "TECHNICAL", "PROCUREMENT"].includes(role);
+  const canDelay = ["ADMIN", "GM", "BD", "PRODUCTION", "PLANNER"].includes(role);
   const canDeleteDelay = role === "ADMIN";
   const canRequest = ["ADMIN", "TECHNICAL"].includes(role);    // can check Required
   const canReceive = ["ADMIN", "PROCUREMENT"].includes(role);  // can check Arrived

@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserPlus } from "lucide-react";
 
-const ROLES = ["ADMIN", "GM", "PRODUCTION", "PLANNER", "TECHNICAL", "PROCUREMENT", "SALES"];
+const ROLES = ["ADMIN", "GM", "BD", "PRODUCTION", "PLANNER", "TECHNICAL", "PROCUREMENT", "SALES"];
 const DEPARTMENTS = ["DRAWING", "CARPENTRY", "PAINTING", "UPHOLSTERY", "PACKING", "PR_CREATION"];
 const DEPT_ROLES = ["PRODUCTION", "TECHNICAL", "PROCUREMENT"];
 

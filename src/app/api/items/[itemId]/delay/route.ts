@@ -9,7 +9,7 @@ const postSchema = z.object({ reason: z.string().min(1).max(500) });
 export async function POST(req: NextRequest, ctx: RouteContext<"/api/items/[itemId]/delay">) {
   const session = await auth();
   if (!session) return new Response(null, { status: 401 });
-  if (!["ADMIN", "GM", "PRODUCTION", "PLANNER"].includes(session.user.role)) return new Response(null, { status: 403 });
+  if (!["ADMIN", "GM", "BD", "PRODUCTION", "PLANNER"].includes(session.user.role)) return new Response(null, { status: 403 });
   const { itemId } = await ctx.params;
   const body = await req.json();
   const parsed = postSchema.safeParse(body);

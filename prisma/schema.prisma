@@ -12,6 +12,7 @@ datasource db {
 enum Role {
   ADMIN
   GM
+  BD
   PRODUCTION
   PLANNER
   TECHNICAL

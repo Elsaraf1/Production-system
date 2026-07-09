@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   let filename: string;
 
   if (type === "inventory-update") {
-    if (!["ADMIN", "GM", "PLANNER"].includes(session.user.role)) return new Response(null, { status: 403 });
+    if (!["ADMIN", "GM", "BD", "PLANNER"].includes(session.user.role)) return new Response(null, { status: 403 });
 
     const orders = await prisma.salesOrder.findMany({
       include: { items: { orderBy: { sortOrder: "asc" } } },

@@ -13,12 +13,12 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import type { Role } from "@/generated/prisma/client";
 
 const navItems = [
-  { href: "/dashboard",    label: "Dashboard",   icon: LayoutDashboard, roles: ["ADMIN","GM","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT","SALES"] },
-  { href: "/orders",       label: "Orders",      icon: ClipboardList,   roles: ["ADMIN","GM","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT","SALES"] },
-  { href: "/update",       label: "Update",      icon: RefreshCw,       roles: ["ADMIN","GM","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT"] },
-  { href: "/stages",       label: "Stages",      icon: Layers,          roles: ["ADMIN","GM","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT"] },
+  { href: "/dashboard",    label: "Dashboard",   icon: LayoutDashboard, roles: ["ADMIN","GM","BD","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT","SALES"] },
+  { href: "/orders",       label: "Orders",      icon: ClipboardList,   roles: ["ADMIN","GM","BD","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT","SALES"] },
+  { href: "/update",       label: "Update",      icon: RefreshCw,       roles: ["ADMIN","GM","BD","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT"] },
+  { href: "/stages",       label: "Stages",      icon: Layers,          roles: ["ADMIN","GM","BD","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT"] },
   { href: "/procurement",  label: "Procurement", icon: ShoppingCart,    roles: ["ADMIN","TECHNICAL","PROCUREMENT"] },
-  { href: "/import",       label: "Import",      icon: Upload,          roles: ["ADMIN","GM","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT"] },
+  { href: "/import",       label: "Import",      icon: Upload,          roles: ["ADMIN","GM","BD","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT"] },
   { href: "/admin/data",   label: "Data",        icon: Database,        roles: ["ADMIN"] },
   { href: "/admin/users",         label: "Users",          icon: Users,       roles: ["ADMIN"] },
   { href: "/admin/notifications", label: "Notifications",  icon: Bell,        roles: ["ADMIN"] },
@@ -28,6 +28,7 @@ const navItems = [
 const roleColors: Record<Role, string> = {
   ADMIN:       "bg-red-100 text-red-700",
   GM:          "bg-emerald-100 text-emerald-700",
+  BD:          "bg-cyan-100 text-cyan-700",
   PRODUCTION:  "bg-blue-100 text-blue-700",
   PLANNER:     "bg-purple-100 text-purple-700",
   TECHNICAL:   "bg-amber-100 text-amber-700",
