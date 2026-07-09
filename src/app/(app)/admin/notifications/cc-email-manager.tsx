@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, PlusCircle } from "lucide-react";
+import { Trash2, PlusCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,12 +14,15 @@ export function CcEmailManager({ initialRows }: { initialRows: CcRow[] }) {
   const [rows, setRows] = useState<CcRow[]>(initialRows);
   const [email, setEmail] = useState("");
   const [label, setLabel] = useState("");
-  const [error, setError] = useState("");
+  const [addError, setAddError] = useState("");
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState("");
   const [isPending, startTransition] = useTransition();
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
+    setAddError("");
     startTransition(async () => {
       const res = await fetch("/api/admin/cc-emails", {
         method: "POST",
@@ -34,19 +37,23 @@ export function CcEmailManager({ initialRows }: { initialRows: CcRow[] }) {
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "Failed to add email.");
+        setAddError(data.error ?? "Failed to add email.");
       }
     });
   }
 
-  function handleDelete(id: string) {
-    startTransition(async () => {
-      const res = await fetch(`/api/admin/cc-emails/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        setRows(r => r.filter(row => row.id !== id));
-        router.refresh();
-      }
-    });
+  async function handleDelete(id: string) {
+    setDeleteError("");
+    setDeletingId(id);
+    setConfirmId(null);
+    const res = await fetch(`/api/admin/cc-emails/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setRows(r => r.filter(row => row.id !== id));
+      router.refresh();
+    } else {
+      setDeleteError("Failed to delete — please try again.");
+    }
+    setDeletingId(null);
   }
 
   return (
@@ -80,7 +87,8 @@ export function CcEmailManager({ initialRows }: { initialRows: CcRow[] }) {
           </Button>
         </div>
       </form>
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {addError && <p className="text-sm text-red-500">{addError}</p>}
+      {deleteError && <p className="text-sm text-red-500">{deleteError}</p>}
 
       {/* List */}
       {rows.length === 0 ? (
@@ -94,7 +102,7 @@ export function CcEmailManager({ initialRows }: { initialRows: CcRow[] }) {
               <tr>
                 <th className="text-left px-4 py-2.5 font-medium text-gray-600">Email</th>
                 <th className="text-left px-4 py-2.5 font-medium text-gray-600">Label</th>
-                <th className="w-10 px-4 py-2.5" />
+                <th className="w-32 px-4 py-2.5" />
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -102,15 +110,34 @@ export function CcEmailManager({ initialRows }: { initialRows: CcRow[] }) {
                 <tr key={row.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-mono text-xs">{row.email}</td>
                   <td className="px-4 py-3 text-muted-foreground">{row.label ?? <span className="text-gray-300">—</span>}</td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => handleDelete(row.id)}
-                      disabled={isPending}
-                      className="text-muted-foreground hover:text-red-500 transition-colors"
-                      title="Remove from CC list"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                  <td className="px-4 py-3 text-right">
+                    {deletingId === row.id ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400 inline" />
+                    ) : confirmId === row.id ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="text-xs text-gray-500">Remove?</span>
+                        <button
+                          onClick={() => handleDelete(row.id)}
+                          className="text-xs font-medium text-red-600 hover:text-red-800"
+                        >
+                          Yes
+                        </button>
+                        <button
+                          onClick={() => setConfirmId(null)}
+                          className="text-xs text-gray-400 hover:text-gray-600"
+                        >
+                          Cancel
+                        </button>
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmId(row.id)}
+                        className="text-muted-foreground hover:text-red-500 transition-colors"
+                        title="Remove from CC list"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
