@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { StageCell } from "@/components/items/stage-cell";
 import { ItemDetailsSheet } from "@/components/items/item-details-sheet";
 import { ProductionOrderCell } from "@/components/items/production-order-cell";
 import { format } from "@/lib/date";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, ShoppingCart, PackageCheck, PackageMinus, Ban } from "lucide-react";
+import { MessageSquare, ShoppingCart, PackageCheck, PackageMinus, Ban, ChevronsUpDown, ChevronUp, ChevronDown } from "lucide-react";
 import type { Role, Department, StageStatus, SalesOrder, OrderItem } from "@/generated/prisma/client";
 
 const STAGES = [
@@ -27,6 +27,9 @@ function canEditStage(role: Role, department: Department | null, stageDept: stri
   return false;
 }
 
+type SortKey = "itemCode" | "productionOrderNo";
+type SortDir = "asc" | "desc";
+
 type PR = { material: string; status: string };
 type ItemWithPRs = OrderItem & { purchaseReqs: PR[] };
 
@@ -37,9 +40,38 @@ interface Props {
   userId: string;
 }
 
+function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey | null; sortDir: SortDir }) {
+  if (sortKey !== col) return <ChevronsUpDown className="h-3.5 w-3.5 ml-1 text-gray-400 inline-block" />;
+  return sortDir === "asc"
+    ? <ChevronUp className="h-3.5 w-3.5 ml-1 text-blue-500 inline-block" />
+    : <ChevronDown className="h-3.5 w-3.5 ml-1 text-blue-500 inline-block" />;
+}
+
 export function OrderDetailClient({ order, role, department, userId }: Props) {
   const [items, setItems] = useState(order.items);
   const [selectedItem, setSelectedItem] = useState<ItemWithPRs | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  function toggleSort(col: SortKey) {
+    if (sortKey === col) {
+      setSortDir(d => d === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(col);
+      setSortDir("asc");
+    }
+  }
+
+  const sortedItems = useMemo(() => {
+    if (!sortKey) return items;
+    return [...items].sort((a, b) => {
+      const av = (a[sortKey] ?? "").toString().toLowerCase();
+      const bv = (b[sortKey] ?? "").toString().toLowerCase();
+      if (av < bv) return sortDir === "asc" ? -1 : 1;
+      if (av > bv) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [items, sortKey, sortDir]);
 
   function handleStageUpdate(itemId: string, stage: string, newStatus: StageStatus, newVersion: number, updatedItem?: Partial<OrderItem>) {
     setItems(prev => prev.map(item =>
@@ -72,8 +104,22 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
         <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Item</th>
-              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Prod. Order No</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">
+                <button
+                  onClick={() => toggleSort("itemCode")}
+                  className="flex items-center hover:text-blue-600 transition-colors whitespace-nowrap"
+                >
+                  Item <SortIcon col="itemCode" sortKey={sortKey} sortDir={sortDir} />
+                </button>
+              </th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">
+                <button
+                  onClick={() => toggleSort("productionOrderNo")}
+                  className="flex items-center hover:text-blue-600 transition-colors whitespace-nowrap"
+                >
+                  Prod. Order No <SortIcon col="productionOrderNo" sortKey={sortKey} sortDir={sortDir} />
+                </button>
+              </th>
               <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Description</th>
               <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Qty</th>
               {STAGES.map(s => (
@@ -91,7 +137,7 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {items.map(item => {
+            {sortedItems.map(item => {
               const active = item.purchaseReqs.filter(p => p.status !== "CANCELLED");
               const hasRequired = active.length > 0;
               const arrivedCount = active.filter(p => p.status === "RECEIVED").length;
