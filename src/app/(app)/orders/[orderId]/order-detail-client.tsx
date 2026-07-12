@@ -27,7 +27,10 @@ function canEditStage(role: Role, department: Department | null, stageDept: stri
   return false;
 }
 
-type SortKey = "itemCode" | "productionOrderNo";
+type SortKey =
+  | "itemCode" | "productionOrderNo" | "description" | "outstandingQty"
+  | "drawingStatus" | "carpentryStatus" | "paintingStatus" | "upholsteryStatus" | "packingStatus"
+  | "reasonOfDelay" | "materialsRequested" | "materialsArrived";
 type SortDir = "asc" | "desc";
 
 type PR = { material: string; status: string };
@@ -40,11 +43,55 @@ interface Props {
   userId: string;
 }
 
+const STATUS_ORDER: Record<string, number> = { PENDING: 0, IN_PROGRESS: 1, DONE: 2, NA: 3 };
+
+function getSortValue(item: ItemWithPRs, key: SortKey): string | number {
+  switch (key) {
+    case "itemCode":          return (item.itemCode ?? "").toLowerCase();
+    case "productionOrderNo": return (item.productionOrderNo ?? "").toLowerCase();
+    case "description":       return (item.description ?? "").toLowerCase();
+    case "outstandingQty":    return item.outstandingQty ?? 0;
+    case "drawingStatus":     return STATUS_ORDER[item.drawingStatus] ?? 0;
+    case "carpentryStatus":   return STATUS_ORDER[item.carpentryStatus] ?? 0;
+    case "paintingStatus":    return STATUS_ORDER[item.paintingStatus] ?? 0;
+    case "upholsteryStatus":  return STATUS_ORDER[item.upholsteryStatus] ?? 0;
+    case "packingStatus":     return STATUS_ORDER[item.packingStatus] ?? 0;
+    case "reasonOfDelay":     return (item.reasonOfDelay ?? "").toLowerCase();
+    case "materialsRequested": {
+      if (!item.requiresMaterial) return 2;
+      const active = item.purchaseReqs.filter(p => p.status !== "CANCELLED");
+      return active.length > 0 ? 1 : 0;
+    }
+    case "materialsArrived": {
+      if (!item.requiresMaterial) return 3;
+      const active = item.purchaseReqs.filter(p => p.status !== "CANCELLED");
+      if (active.length === 0) return 0;
+      const arrived = active.filter(p => p.status === "RECEIVED").length;
+      if (arrived === active.length) return 2;
+      return arrived > 0 ? 1 : 0;
+    }
+    default: return "";
+  }
+}
+
 function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey | null; sortDir: SortDir }) {
-  if (sortKey !== col) return <ChevronsUpDown className="h-3.5 w-3.5 ml-1 text-gray-400 inline-block" />;
+  if (sortKey !== col) return <ChevronsUpDown className="h-3 w-3 ml-1 text-gray-400 inline-block shrink-0" />;
   return sortDir === "asc"
-    ? <ChevronUp className="h-3.5 w-3.5 ml-1 text-blue-500 inline-block" />
-    : <ChevronDown className="h-3.5 w-3.5 ml-1 text-blue-500 inline-block" />;
+    ? <ChevronUp className="h-3 w-3 ml-1 text-blue-500 inline-block shrink-0" />
+    : <ChevronDown className="h-3 w-3 ml-1 text-blue-500 inline-block shrink-0" />;
+}
+
+function SortTh({ col, label, sortKey, sortDir, onSort, className }: {
+  col: SortKey; label: string; sortKey: SortKey | null; sortDir: SortDir;
+  onSort: (col: SortKey) => void; className?: string;
+}) {
+  return (
+    <th className={`lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium ${className ?? ""}`}>
+      <button onClick={() => onSort(col)} className="flex items-center hover:text-blue-600 transition-colors whitespace-nowrap">
+        {label}<SortIcon col={col} sortKey={sortKey} sortDir={sortDir} />
+      </button>
+    </th>
+  );
 }
 
 export function OrderDetailClient({ order, role, department, userId }: Props) {
@@ -65,8 +112,8 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
   const sortedItems = useMemo(() => {
     if (!sortKey) return items;
     return [...items].sort((a, b) => {
-      const av = (a[sortKey] ?? "").toString().toLowerCase();
-      const bv = (b[sortKey] ?? "").toString().toLowerCase();
+      const av = getSortValue(a, sortKey);
+      const bv = getSortValue(b, sortKey);
       if (av < bv) return sortDir === "asc" ? -1 : 1;
       if (av > bv) return sortDir === "asc" ? 1 : -1;
       return 0;
@@ -104,34 +151,29 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
         <table className="w-full text-sm lg:border-separate lg:border-spacing-0 lg:[&_th]:border-b lg:[&_td]:border-b">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">
-                <button
-                  onClick={() => toggleSort("itemCode")}
-                  className="flex items-center hover:text-blue-600 transition-colors whitespace-nowrap"
-                >
-                  Item <SortIcon col="itemCode" sortKey={sortKey} sortDir={sortDir} />
-                </button>
-              </th>
-              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">
-                <button
-                  onClick={() => toggleSort("productionOrderNo")}
-                  className="flex items-center hover:text-blue-600 transition-colors whitespace-nowrap"
-                >
-                  Prod. Order No <SortIcon col="productionOrderNo" sortKey={sortKey} sortDir={sortDir} />
-                </button>
-              </th>
-              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Description</th>
-              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Qty</th>
+              <SortTh col="itemCode"          label="Item"          sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortTh col="productionOrderNo" label="Prod. Order No" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortTh col="description"       label="Description"   sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortTh col="outstandingQty"    label="Qty"           sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
               {STAGES.map(s => (
-                <th key={s.key} className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">{s.label}</th>
+                <SortTh
+                  key={s.key}
+                  col={`${s.key}Status` as SortKey}
+                  label={s.label}
+                  sortKey={sortKey} sortDir={sortDir} onSort={toggleSort}
+                />
               ))}
-              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-4 py-3 font-medium">Delay</th>
-              {/* PR summary columns */}
-              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 px-3 py-3" title="Materials requested by Technical">
-                <ShoppingCart className="h-3.5 w-3.5 text-amber-500 mx-auto" />
+              <SortTh col="reasonOfDelay"      label="Delay"        sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              {/* PR icon columns */}
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 px-3 py-3">
+                <button onClick={() => toggleSort("materialsRequested")} className="block mx-auto" title="Sort by materials requested">
+                  <ShoppingCart className={`h-3.5 w-3.5 mx-auto ${sortKey === "materialsRequested" ? "text-blue-500" : "text-amber-500"}`} />
+                </button>
               </th>
-              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 px-3 py-3" title="Materials arrived (Procurement)">
-                <PackageCheck className="h-3.5 w-3.5 text-green-500 mx-auto" />
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 px-3 py-3">
+                <button onClick={() => toggleSort("materialsArrived")} className="block mx-auto" title="Sort by materials arrived">
+                  <PackageCheck className={`h-3.5 w-3.5 mx-auto ${sortKey === "materialsArrived" ? "text-blue-500" : "text-green-500"}`} />
+                </button>
               </th>
               <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 px-4 py-3 w-10" />
             </tr>
@@ -169,7 +211,6 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
                   <td className="px-4 py-3 text-xs text-orange-600 max-w-[120px] truncate">
                     {item.reasonOfDelay ?? "—"}
                   </td>
-                  {/* Required symbol */}
                   <td className="px-3 py-3 text-center">
                     {!item.requiresMaterial
                       ? <span title="N/A — item needs no material"><Ban className="h-4 w-4 text-red-400 mx-auto" /></span>
@@ -177,7 +218,6 @@ export function OrderDetailClient({ order, role, department, userId }: Props) {
                         ? <ShoppingCart className="h-4 w-4 text-amber-500 mx-auto" />
                         : <span className="text-xs text-gray-300">—</span>}
                   </td>
-                  {/* Arrived symbol — full / partial / none */}
                   <td className="px-3 py-3 text-center">
                     {!item.requiresMaterial
                       ? <span title="N/A — item needs no material"><Ban className="h-4 w-4 text-red-400 mx-auto" /></span>
