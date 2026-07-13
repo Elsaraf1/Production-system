@@ -6,7 +6,7 @@ import { z } from "zod";
 import { hash } from "bcryptjs";
 
 const createSchema = z.object({
-  username: z.string().min(2).max(50),
+  username: z.string().min(2).max(50).transform(s => s.trim()),
   password: z.string().min(6),
   displayName: z.string().min(1).max(100),
   role: z.enum(["ADMIN", "GM", "BD", "PRODUCTION", "PLANNER", "TECHNICAL", "PROCUREMENT", "SALES"]),
