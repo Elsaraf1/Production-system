@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   LayoutDashboard, ClipboardList, RefreshCw, ShoppingCart,
-  Upload, Users, ScrollText, Database, LogOut, Layers, Menu, Bell,
+  Upload, Users, ScrollText, Database, LogOut, Layers, Menu, Bell, Archive,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -15,6 +15,7 @@ import type { Role } from "@/generated/prisma/client";
 const navItems = [
   { href: "/dashboard",    label: "Dashboard",   icon: LayoutDashboard, roles: ["ADMIN","GM","BD","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT","SALES"] },
   { href: "/orders",       label: "Orders",      icon: ClipboardList,   roles: ["ADMIN","GM","BD","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT","SALES"] },
+  { href: "/orders/archived", label: "Archived Orders", icon: Archive, roles: ["ADMIN","GM","BD","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT","SALES"] },
   { href: "/update",       label: "Update",      icon: RefreshCw,       roles: ["ADMIN","GM","BD","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT"] },
   { href: "/stages",       label: "Stages",      icon: Layers,          roles: ["ADMIN","GM","BD","PRODUCTION","PLANNER","TECHNICAL","PROCUREMENT"] },
   { href: "/procurement",  label: "Procurement", icon: ShoppingCart,    roles: ["ADMIN","TECHNICAL","PROCUREMENT"] },
@@ -42,6 +43,11 @@ export function Sidebar({ role, displayName }: SidebarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const visible = navItems.filter(item => (item.roles as readonly string[]).includes(role));
+  // Longest matching href wins, so e.g. "/orders/archived" doesn't also light up "/orders".
+  const activeHref = visible
+    .map(i => i.href)
+    .filter(href => pathname === href || (href !== "/dashboard" && pathname.startsWith(href)))
+    .sort((a, b) => b.length - a.length)[0];
 
   const initials = displayName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -69,7 +75,7 @@ export function Sidebar({ role, displayName }: SidebarProps) {
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {visible.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+          const isActive = href === activeHref;
           return (
             <Link
               key={href}

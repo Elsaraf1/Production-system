@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
             cfg.role === "TECHNICAL"
               ? prisma.user.findMany({ where: { role: "TECHNICAL", isActive: true, email: { not: null } }, select: { email: true } })
               : prisma.user.findMany({ where: { role: "PRODUCTION", department: cfg.department as Department, isActive: true, email: { not: null } }, select: { email: true } }),
-            prisma.user.findMany({ where: { role: { in: ["PLANNER", "GM", "BD"] }, isActive: true, email: { not: null } }, select: { email: true } }),
+            prisma.user.findMany({ where: { role: "PLANNER", isActive: true, email: { not: null } }, select: { email: true } }),
             prisma.user.findMany({ where: { role: "ADMIN", isActive: true, email: { not: null } }, select: { email: true } }),
           ]);
           const emails = [...new Set([...stageUsers, ...plannerUsers, ...adminUsers].map(u => u.email!))];

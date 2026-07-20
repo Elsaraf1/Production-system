@@ -7,7 +7,7 @@ export default async function ProcurementPage() {
   if (!session) return null;
 
   const prs = await prisma.purchaseRequisition.findMany({
-    where: { status: { not: "CANCELLED" } },
+    where: { status: { not: "CANCELLED" }, orderItem: { salesOrder: { archivedAt: null } } },
     include: {
       orderItem: { include: { salesOrder: true } },
       createdBy: { select: { displayName: true } },

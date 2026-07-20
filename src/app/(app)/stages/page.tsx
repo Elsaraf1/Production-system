@@ -44,6 +44,7 @@ export default async function StagesPage() {
   if (!session) return null;
 
   const items = await prisma.orderItem.findMany({
+    where: { salesOrder: { archivedAt: null } },
     include: {
       salesOrder: true,
       purchaseReqs: { select: { status: true, requestedDate: true, receivedDate: true } },

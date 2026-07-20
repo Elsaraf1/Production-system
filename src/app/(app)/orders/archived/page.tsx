@@ -3,42 +3,51 @@ import { auth } from "@/lib/auth";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { format } from "@/lib/date";
-import { CreateOrderDialog } from "./create-order-dialog";
-import { ArchiveRowAction } from "./archive-row-action";
+import { UnarchiveRowAction } from "./archived-row-action";
 
 interface Props {
   searchParams: Promise<{ q?: string }>;
 }
 
-export default async function OrdersPage({ searchParams }: Props) {
+function completedOn(items: { drawingDate: Date | null; carpentryDate: Date | null; paintingDate: Date | null; upholsteryDate: Date | null; packingDate: Date | null }[]): Date | null {
+  let latest: Date | null = null;
+  for (const item of items) {
+    for (const d of [item.drawingDate, item.carpentryDate, item.paintingDate, item.upholsteryDate, item.packingDate]) {
+      if (d && (!latest || d > latest)) latest = d;
+    }
+  }
+  return latest;
+}
+
+export default async function ArchivedOrdersPage({ searchParams }: Props) {
   const [session, { q }] = await Promise.all([auth(), searchParams]);
 
   const orders = await prisma.salesOrder.findMany({
     where: {
-      archivedAt: null,
+      archivedAt: { not: null },
       ...(q ? { OR: [
         { ppoNumber: { contains: q, mode: "insensitive" } },
         { clientName: { contains: q, mode: "insensitive" } },
       ] } : {}),
     },
-    include: { items: { select: { productionOrderNo: true } } },
-    orderBy: { rsd: "asc" },
+    include: {
+      items: { select: { drawingDate: true, carpentryDate: true, paintingDate: true, upholsteryDate: true, packingDate: true } },
+    },
+    orderBy: { archivedAt: "desc" },
   });
-
-  const now = new Date();
 
   return (
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:sticky lg:top-0 lg:z-20 lg:bg-gray-50 lg:-mx-7 lg:px-7 lg:h-[68px] lg:border-b lg:border-gray-200">
         <div>
-          <h1 className="text-2xl font-semibold">Sales Orders</h1>
+          <h1 className="text-2xl font-semibold">Archived Orders</h1>
           <p className="text-muted-foreground text-sm mt-0.5">{orders.length} order{orders.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <form method="get" className="w-full sm:w-64">
             <Input name="q" defaultValue={q} placeholder="Search PPO or client…" className="h-9" />
           </form>
-          {session?.user.role === "ADMIN" && <CreateOrderDialog />}
+          <Link href="/orders" className="text-sm text-primary hover:underline whitespace-nowrap">Back to Orders</Link>
         </div>
       </div>
 
@@ -48,25 +57,24 @@ export default async function OrdersPage({ searchParams }: Props) {
             <tr className="bg-gray-50 border-b">
               <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">PPO Number</th>
               <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Client</th>
-              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Order Date</th>
               <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">RSD</th>
               <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Items</th>
-              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Status</th>
+              <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600">Completed On</th>
+              {session?.user.role === "ADMIN" && (
+                <th className="lg:sticky lg:z-10 lg:top-[68px] bg-gray-50 text-left px-5 py-3 font-semibold text-gray-600" />
+              )}
             </tr>
           </thead>
           <tbody className="divide-y">
             {orders.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-5 py-12 text-center text-muted-foreground">
-                  No orders found.
+                  No archived orders yet.
                 </td>
               </tr>
             )}
             {orders.map((order) => {
-              const readyToArchive = order.items.length > 0 &&
-                order.items.every(i => i.productionOrderNo.trim().toLowerCase() === "inventored");
-              const isOverdue = !readyToArchive && order.rsd < now;
-              const isDueSoon = !readyToArchive && !isOverdue && order.rsd < new Date(now.getTime() + 7 * 86400000);
+              const completed = completedOn(order.items);
               return (
                 <tr key={order.id} className="hover:bg-gray-50/70 transition-colors">
                   <td className="px-5 py-3.5">
@@ -75,31 +83,18 @@ export default async function OrdersPage({ searchParams }: Props) {
                     </Link>
                   </td>
                   <td className="px-5 py-3.5 text-gray-700">{order.clientName}</td>
-                  <td className="px-5 py-3.5 text-gray-500">{format(order.orderDate)}</td>
-                  <td className="px-5 py-3.5">
-                    <span className={isOverdue ? "text-red-600 font-medium" : isDueSoon ? "text-orange-600 font-medium" : "text-gray-500"}>
-                      {format(order.rsd)}
-                    </span>
-                  </td>
+                  <td className="px-5 py-3.5 text-gray-500">{format(order.rsd)}</td>
                   <td className="px-5 py-3.5">
                     <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 text-xs font-semibold text-gray-600">
                       {order.items.length}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {readyToArchive ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">Ready to Archive</span>
-                      ) : isOverdue ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-red-100 text-red-700">Overdue</span>
-                      ) : isDueSoon ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-orange-100 text-orange-700">Due Soon</span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-green-100 text-green-700">On Track</span>
-                      )}
-                      {readyToArchive && session?.user.role === "ADMIN" && <ArchiveRowAction orderId={order.id} />}
-                    </div>
-                  </td>
+                  <td className="px-5 py-3.5 text-gray-500">{completed ? format(completed) : "—"}</td>
+                  {session?.user.role === "ADMIN" && (
+                    <td className="px-5 py-3.5">
+                      <UnarchiveRowAction orderId={order.id} />
+                    </td>
+                  )}
                 </tr>
               );
             })}

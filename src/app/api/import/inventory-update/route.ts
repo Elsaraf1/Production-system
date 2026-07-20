@@ -11,6 +11,11 @@ const STAGE_LABELS: Record<StageField, string> = {
   upholsteryStatus: "Upholstery", packingStatus: "Packing",
 };
 
+const STAGE_DATE_FIELDS: Record<StageField, string> = {
+  drawingStatus: "drawingDate", carpentryStatus: "carpentryDate", paintingStatus: "paintingDate",
+  upholsteryStatus: "upholsteryDate", packingStatus: "packingDate",
+};
+
 export async function POST(req: NextRequest) {
   try {
   const session = await auth();
@@ -84,7 +89,10 @@ export async function POST(req: NextRequest) {
 
     for (const m of matches) {
       const updateData: Record<string, unknown> = { productionOrderNo: m.newPO, version: { increment: 1 } };
-      for (const c of m.stageChanges) updateData[c.field] = c.newVal;
+      for (const c of m.stageChanges) {
+        updateData[c.field] = c.newVal;
+        updateData[STAGE_DATE_FIELDS[c.field]] = new Date();
+      }
       await tx.orderItem.update({ where: { id: m.itemId }, data: updateData });
 
       auditData.push({

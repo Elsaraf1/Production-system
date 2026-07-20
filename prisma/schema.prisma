@@ -103,6 +103,7 @@ model SalesOrder {
   rsd        DateTime
   version    Int         @default(0)
   createdAt  DateTime    @default(now())
+  archivedAt DateTime?
 
   items      OrderItem[]
 }

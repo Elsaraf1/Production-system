@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
         },
       });
       const existing = findMatchingItem(candidates, row);
+      const isInventored = row.productionOrderNo?.trim().toLowerCase() === "inventored";
 
       if (!existing) {
         const item = await prisma.orderItem.create({
@@ -63,6 +64,10 @@ export async function POST(req: NextRequest) {
             upholsteryStatus: (row.upholsteryStatus as "PENDING" | "IN_PROGRESS" | "DONE" | "NA") ?? "PENDING",
             packingStatus: (row.packingStatus as "PENDING" | "IN_PROGRESS" | "DONE" | "NA") ?? "PENDING",
             reasonOfDelay: row.reasonOfDelay ?? null,
+            ...(isInventored ? {
+              drawingDate: new Date(), carpentryDate: new Date(), paintingDate: new Date(),
+              upholsteryDate: new Date(), packingDate: new Date(),
+            } : {}),
           },
         });
         await writeAuditLog(prisma as Parameters<typeof writeAuditLog>[0], {
@@ -83,10 +88,15 @@ export async function POST(req: NextRequest) {
         ];
         const auditEntries: Array<{ field: string; old: string | null; newVal: string | null }> = [];
 
+        const dateFields: Record<string, string> = {
+          drawingStatus: "drawingDate", carpentryStatus: "carpentryDate", paintingStatus: "paintingDate",
+          upholsteryStatus: "upholsteryDate", packingStatus: "packingDate",
+        };
         for (const [statusField, newStatus] of stageFields) {
           if (newStatus && newStatus !== (existing as Record<string, unknown>)[statusField]) {
             auditEntries.push({ field: statusField, old: String((existing as Record<string, unknown>)[statusField] ?? ""), newVal: newStatus });
             updateData[statusField] = newStatus;
+            if (isInventored && newStatus === "DONE") updateData[dateFields[statusField]] = new Date();
           }
         }
         if (row.reasonOfDelay !== undefined && row.reasonOfDelay !== existing.reasonOfDelay) {

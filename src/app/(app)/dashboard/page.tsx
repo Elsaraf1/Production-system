@@ -15,16 +15,21 @@ export default async function DashboardPage() {
   const now = new Date();
   const in7 = new Date(now.getTime() + 7 * 86400000);
 
+  // A fully Inventored order is finished — never overdue, whether or not it's been archived yet.
+  const notFullyInventored = {
+    items: { some: { NOT: { productionOrderNo: { equals: "Inventored", mode: "insensitive" as const } } } },
+  };
+
   const [totalOrders, totalItems, overdueOrders, completedItems, dueSoon7] = await Promise.all([
-    prisma.salesOrder.count(),
-    prisma.orderItem.count(),
+    prisma.salesOrder.count({ where: { archivedAt: null } }),
+    prisma.orderItem.count({ where: { salesOrder: { archivedAt: null } } }),
     prisma.salesOrder.findMany({
-      where: { rsd: { lt: now } },
+      where: { rsd: { lt: now }, archivedAt: null, ...notFullyInventored },
       select: { id: true, ppoNumber: true, clientName: true, rsd: true },
       orderBy: { rsd: "asc" },
     }),
-    prisma.orderItem.count({ where: { packingStatus: "DONE" } }),
-    prisma.salesOrder.count({ where: { rsd: { gte: now, lte: in7 } } }),
+    prisma.orderItem.count({ where: { packingStatus: "DONE", salesOrder: { archivedAt: null } } }),
+    prisma.salesOrder.count({ where: { rsd: { gte: now, lte: in7 }, archivedAt: null, ...notFullyInventored } }),
   ]);
 
   const stages = ["drawing", "carpentry", "painting", "upholstery", "packing"] as const;
@@ -33,6 +38,7 @@ export default async function DashboardPage() {
     stages.map(stage =>
       prisma.orderItem.groupBy({
         by: [`${stage}Status` as "drawingStatus"],
+        where: { salesOrder: { archivedAt: null } },
         _count: { _all: true },
       })
     )

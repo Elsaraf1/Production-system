@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     try {
       const [carpentryUsers, plannerUsers] = await Promise.all([
         prisma.user.findMany({ where: { role: "PRODUCTION", department: "CARPENTRY", isActive: true, email: { not: null } }, select: { email: true } }),
-        prisma.user.findMany({ where: { role: { in: ["PLANNER", "GM", "BD"] }, isActive: true, email: { not: null } }, select: { email: true } }),
+        prisma.user.findMany({ where: { role: "PLANNER", isActive: true, email: { not: null } }, select: { email: true } }),
       ]);
       const emails = [...new Set([...carpentryUsers, ...plannerUsers].map(u => u.email!))];
       await notifyBulkReleasingDone(toUpdate.length, emails);
